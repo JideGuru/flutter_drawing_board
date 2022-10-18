@@ -34,106 +34,105 @@ class DrawingCanvas extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    void onPointerDown(PointerDownEvent details) {
-      final box = context.findRenderObject() as RenderBox;
-      final offset = box.globalToLocal(details.position);
-      currentSketch.value = Sketch.fromDrawingMode(
-        Sketch(
-          points: [offset],
-          size: drawingMode.value == DrawingMode.eraser
-              ? eraserSize.value
-              : strokeSize.value,
-          color: drawingMode.value == DrawingMode.eraser
-              ? kCanvasColor
-              : selectedColor.value,
-        ),
-        drawingMode.value,
-      );
-    }
-
-    void onPointerMove(PointerMoveEvent details) {
-      // close sidebar if open
-      if (sideBarController.value == 1) sideBarController.reverse();
-      // clear removed sketch to disable 'redo' button
-      removedSketch.value = null;
-      final box = context.findRenderObject() as RenderBox;
-      final offset = box.globalToLocal(details.position);
-      final points = List<Offset>.from(currentSketch.value?.points ?? [])
-        ..add(offset);
-      currentSketch.value = Sketch.fromDrawingMode(
-        Sketch(
-          points: points,
-          size: drawingMode.value == DrawingMode.eraser
-              ? eraserSize.value
-              : strokeSize.value,
-          color: drawingMode.value == DrawingMode.eraser
-              ? kCanvasColor
-              : selectedColor.value,
-        ),
-        drawingMode.value,
-      );
-    }
-
-    void onPointerUp(PointerUpEvent details) {
-      allSketches.value = List<Sketch>.from(allSketches.value)
-        ..add(currentSketch.value!);
-    }
-
-    buildAllSketches() {
-      return SizedBox(
-        height: height,
-        width: width,
-        child: ValueListenableBuilder<List<Sketch>>(
-          valueListenable: allSketches,
-          builder: (context, sketches, _) {
-            // Clipping makes sure the painting doesnt leave the canvas
-            return RepaintBoundary(
-              key: canvasGlobalKey,
-              child: SizedBox(
-                height: height,
-                width: width,
-                child: CustomPaint(
-                  painter: SketchPainter(
-                    sketches: sketches,
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-      );
-    }
-
-    Widget buildCurrentPath() {
-      return Listener(
-        onPointerDown: onPointerDown,
-        onPointerMove: onPointerMove,
-        onPointerUp: onPointerUp,
-        child: ValueListenableBuilder(
-          valueListenable: currentSketch,
-          builder: (context, sketch, child) {
-            return RepaintBoundary(
-              child: SizedBox(
-                height: height,
-                width: width,
-                child: CustomPaint(
-                  painter: SketchPainter(
-                    sketches: sketch == null ? [] : [sketch],
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-      );
-    }
-
     return Stack(
       children: [
-        buildAllSketches(),
-        buildCurrentPath(),
+        buildAllSketches(context),
+        buildCurrentPath(context),
       ],
+    );
+  }
+
+  void onPointerDown(PointerDownEvent details, BuildContext context) {
+    final box = context.findRenderObject() as RenderBox;
+    final offset = box.globalToLocal(details.position);
+    currentSketch.value = Sketch.fromDrawingMode(
+      Sketch(
+        points: [offset],
+        size: drawingMode.value == DrawingMode.eraser
+            ? eraserSize.value
+            : strokeSize.value,
+        color: drawingMode.value == DrawingMode.eraser
+            ? kCanvasColor
+            : selectedColor.value,
+      ),
+      drawingMode.value,
+    );
+  }
+
+  void onPointerMove(PointerMoveEvent details, BuildContext context) {
+    // close sidebar if open
+    if (sideBarController.value == 1) sideBarController.reverse();
+    // clear removed sketch to disable 'redo' button
+    removedSketch.value = null;
+    final box = context.findRenderObject() as RenderBox;
+    final offset = box.globalToLocal(details.position);
+    final points = List<Offset>.from(currentSketch.value?.points ?? [])
+      ..add(offset);
+    currentSketch.value = Sketch.fromDrawingMode(
+      Sketch(
+        points: points,
+        size: drawingMode.value == DrawingMode.eraser
+            ? eraserSize.value
+            : strokeSize.value,
+        color: drawingMode.value == DrawingMode.eraser
+            ? kCanvasColor
+            : selectedColor.value,
+      ),
+      drawingMode.value,
+    );
+  }
+
+  void onPointerUp(PointerUpEvent details) {
+    allSketches.value = List<Sketch>.from(allSketches.value)
+      ..add(currentSketch.value!);
+  }
+
+  Widget buildAllSketches(BuildContext context) {
+    return SizedBox(
+      height: height,
+      width: width,
+      child: ValueListenableBuilder<List<Sketch>>(
+        valueListenable: allSketches,
+        builder: (context, sketches, _) {
+          // Clipping makes sure the painting doesnt leave the canvas
+          return RepaintBoundary(
+            key: canvasGlobalKey,
+            child: SizedBox(
+              height: height,
+              width: width,
+              child: CustomPaint(
+                painter: SketchPainter(
+                  sketches: sketches,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget buildCurrentPath(BuildContext context) {
+    return Listener(
+      onPointerDown: (details) => onPointerDown(details, context),
+      onPointerMove: (details) => onPointerMove(details, context),
+      onPointerUp: onPointerUp,
+      child: ValueListenableBuilder(
+        valueListenable: currentSketch,
+        builder: (context, sketch, child) {
+          return RepaintBoundary(
+            child: SizedBox(
+              height: height,
+              width: width,
+              child: CustomPaint(
+                painter: SketchPainter(
+                  sketches: sketch == null ? [] : [sketch],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
