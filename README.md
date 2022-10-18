@@ -10,6 +10,10 @@ A simple drawing app made with Flutter
 - Any IDE with Flutter SDK installed (ie. IntelliJ, Android Studio, VSCode etc)
 - A little knowledge of Dart and Flutter
 
+## 📸 ScreenShots
+
+<img src="assets/screenshots/ss1.png"/>
+
 ## ✨ Features
 
 - [x] Scribble.
@@ -18,10 +22,6 @@ A simple drawing app made with Flutter
 - [x] Undo and Redo
 - [x] Export as Image
 
-
-## 📸 ScreenShots
-
-<!-- <img src="assets/screenshots/ss1.png"/> -->
 
 ## 🤓 Author(s)
 
