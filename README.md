@@ -21,7 +21,7 @@ A simple drawing app made with Flutter
 
 ## 📸 ScreenShots
 
-<!-- <img src="ss/mockup.png"/> -->
+<!-- <img src="assets/screenshots/ss1.png"/> -->
 
 ## 🤓 Author(s)
 
