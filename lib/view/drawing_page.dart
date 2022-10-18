@@ -20,6 +20,7 @@ class DrawingPage extends HookWidget {
 
     ValueNotifier<Sketch?> currentSketch = useState(null);
     ValueNotifier<List<Sketch>> allSketches = useState([]);
+    ValueNotifier<Sketch?> removedSketch = useState(null);
 
     final animationController = useAnimationController(
       duration: const Duration(milliseconds: 150),
@@ -41,6 +42,7 @@ class DrawingPage extends HookWidget {
               eraserSize: eraserSize,
               sideBarController: animationController,
               currentSketch: currentSketch,
+              removedSketch: removedSketch,
               allSketches: allSketches,
               canvasGlobalKey: canvasGlobalKey,
             ),
@@ -59,6 +61,7 @@ class DrawingPage extends HookWidget {
                 strokeSize: strokeSize,
                 eraserSize: eraserSize,
                 currentSketch: currentSketch,
+                removedSketch: removedSketch,
                 allSketches: allSketches,
                 canvasGlobalKey: canvasGlobalKey,
               ),

@@ -15,6 +15,7 @@ class CanvasSideBar extends StatelessWidget {
   final ValueNotifier<double> eraserSize;
   final ValueNotifier<DrawingMode> drawingMode;
   final ValueNotifier<Sketch?> currentSketch;
+  final ValueNotifier<Sketch?> removedSketch;
   final ValueNotifier<List<Sketch>> allSketches;
   final GlobalKey canvasGlobalKey;
 
@@ -24,6 +25,7 @@ class CanvasSideBar extends StatelessWidget {
     required this.strokeSize,
     required this.eraserSize,
     required this.drawingMode,
+    required this.removedSketch,
     required this.currentSketch,
     required this.allSketches,
     required this.canvasGlobalKey,
@@ -164,18 +166,34 @@ class CanvasSideBar extends StatelessWidget {
             Row(
               children: [
                 TextButton(
+                  onPressed: allSketches.value.isNotEmpty && removedSketch.value == null
+                      ? () {
+                          Sketch last = allSketches.value.last;
+                          List<Sketch> sketches = List.from(allSketches.value)
+                            ..removeLast();
+                          allSketches.value = sketches;
+                          removedSketch.value = last;
+                          currentSketch.value = null;
+                        }
+                      : null,
                   child: const Text('Undo'),
-                  onPressed: () {},
                 ),
                 TextButton(
+                  onPressed: removedSketch.value != null
+                      ? () {
+                          allSketches.value = List.from(allSketches.value)
+                            ..add(removedSketch.value!);
+                          removedSketch.value = null;
+                        }
+                      : null,
                   child: const Text('Redo'),
-                  onPressed: () {},
                 ),
                 TextButton(
                   child: const Text('Clear'),
                   onPressed: () {
                     allSketches.value = List.from(allSketches.value)..clear();
                     currentSketch.value = null;
+                    removedSketch.value = null;
                   },
                 ),
               ],
@@ -216,7 +234,7 @@ class CanvasSideBar extends StatelessWidget {
                     child: const Text('Export SVG'),
                     onPressed: () async {
                       try {
-                        Uint8List? pngBytes = await getBytes();
+                        // Uint8List? pngBytes = await getBytes();
                         print('Not implemented');
                       } catch (e) {
                         print(e);
@@ -228,8 +246,8 @@ class CanvasSideBar extends StatelessWidget {
             ),
             // add about me button or follow buttons
             const Divider(),
-            Center(
-              child: const Text(
+            const Center(
+              child: Text(
                 'Made with 💙 by JideGuru',
                 style: TextStyle(fontSize: 12),
               ),
@@ -240,13 +258,11 @@ class CanvasSideBar extends StatelessWidget {
     );
   }
 
-  Future<Uint8List?> getBytes() async  {
-    RenderRepaintBoundary boundary =
-    canvasGlobalKey.currentContext?.findRenderObject()
-    as RenderRepaintBoundary;
+  Future<Uint8List?> getBytes() async {
+    RenderRepaintBoundary boundary = canvasGlobalKey.currentContext
+        ?.findRenderObject() as RenderRepaintBoundary;
     ui.Image image = await boundary.toImage();
-    ByteData? byteData = await image.toByteData(
-        format: ui.ImageByteFormat.png);
+    ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     Uint8List? pngBytes = byteData?.buffer.asUint8List();
     return pngBytes;
   }

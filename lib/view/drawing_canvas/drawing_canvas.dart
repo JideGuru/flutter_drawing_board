@@ -13,6 +13,7 @@ class DrawingCanvas extends HookWidget {
   final ValueNotifier<DrawingMode> drawingMode;
   final AnimationController sideBarController;
   final ValueNotifier<Sketch?> currentSketch;
+  final ValueNotifier<Sketch?> removedSketch;
   final ValueNotifier<List<Sketch>> allSketches;
   final GlobalKey canvasGlobalKey;
 
@@ -26,6 +27,7 @@ class DrawingCanvas extends HookWidget {
     required this.drawingMode,
     required this.sideBarController,
     required this.currentSketch,
+    required this.removedSketch,
     required this.allSketches,
     required this.canvasGlobalKey,
   }) : super(key: key);
@@ -34,7 +36,6 @@ class DrawingCanvas extends HookWidget {
   Widget build(BuildContext context) {
 
     void onPointerDown(PointerDownEvent details) {
-      print('down');
       final box = context.findRenderObject() as RenderBox;
       final offset = box.globalToLocal(details.position);
       currentSketch.value = Sketch.fromDrawingMode(
@@ -52,9 +53,10 @@ class DrawingCanvas extends HookWidget {
     }
 
     void onPointerMove(PointerMoveEvent details) {
-      print('move');
       // close sidebar if open
       if (sideBarController.value == 1) sideBarController.reverse();
+      // clear removed sketch to disable 'redo' button
+      removedSketch.value = null;
       final box = context.findRenderObject() as RenderBox;
       final offset = box.globalToLocal(details.position);
       final points = List<Offset>.from(currentSketch.value?.points ?? [])
@@ -74,7 +76,6 @@ class DrawingCanvas extends HookWidget {
     }
 
     void onPointerUp(PointerUpEvent details) {
-      print('up');
       allSketches.value = List<Sketch>.from(allSketches.value)
         ..add(currentSketch.value!);
     }
@@ -211,7 +212,7 @@ class SketchPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
+  bool shouldRepaint(covariant SketchPainter oldDelegate) {
+    return oldDelegate.sketches != sketches;
   }
 }
