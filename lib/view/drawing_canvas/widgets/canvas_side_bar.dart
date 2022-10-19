@@ -41,6 +41,7 @@ class CanvasSideBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 300,
+      height: MediaQuery.of(context).size.height < 680 ? 450 : 610,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: const BorderRadius.horizontal(right: Radius.circular(10)),
@@ -52,252 +53,250 @@ class CanvasSideBar extends StatelessWidget {
           ),
         ],
       ),
-      child: Padding(
+      child: ListView(
         padding: const EdgeInsets.all(10.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 10),
-            const Text(
-              'Shapes',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const Divider(),
-            Wrap(
-              alignment: WrapAlignment.start,
-              spacing: 5,
-              runSpacing: 5,
-              children: [
-                _IconBox(
-                  iconData: FontAwesomeIcons.pencil,
-                  selected: drawingMode.value == DrawingMode.pencil,
-                  onTap: () => drawingMode.value = DrawingMode.pencil,
-                ),
-                _IconBox(
-                  selected: drawingMode.value == DrawingMode.line,
-                  onTap: () => drawingMode.value = DrawingMode.line,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 22,
-                        height: 2,
-                        color: drawingMode.value == DrawingMode.line
-                            ? Colors.grey[900]
-                            : Colors.grey,
-                      ),
-                    ],
-                  ),
-                ),
-                _IconBox(
-                  iconData: Icons.hexagon_outlined,
-                  selected: drawingMode.value == DrawingMode.polygon,
-                  onTap: () => drawingMode.value = DrawingMode.polygon,
-                ),
-                _IconBox(
-                  iconData: FontAwesomeIcons.eraser,
-                  selected: drawingMode.value == DrawingMode.eraser,
-                  onTap: () => drawingMode.value = DrawingMode.eraser,
-                ),
-                _IconBox(
-                  iconData: FontAwesomeIcons.square,
-                  selected: drawingMode.value == DrawingMode.square,
-                  onTap: () => drawingMode.value = DrawingMode.square,
-                ),
-                _IconBox(
-                  iconData: FontAwesomeIcons.circle,
-                  selected: drawingMode.value == DrawingMode.circle,
-                  onTap: () => drawingMode.value = DrawingMode.circle,
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Text(
-                  'Fill Shape: ',
-                  style: TextStyle(fontSize: 12),
-                ),
-                Checkbox(
-                  value: filled.value,
-                  onChanged: (val) {
-                    filled.value = val ?? false;
-                  },
-                ),
-              ],
-            ),
-
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 150),
-              child: drawingMode.value == DrawingMode.polygon ?Row(
-                children: [
-                  const Text(
-                    'Polygon Sides: ',
-                    style: TextStyle(fontSize: 12),
-                  ),
-                  Slider(
-                    value: polygonSides.value.toDouble(),
-                    min: 3,
-                    max: 8,
-                    onChanged: (val) {
-                      polygonSides.value = val.toInt();
-                    },
-                    label: '${polygonSides.value}',
-                    divisions: 5,
-                  ),
-                ],
-              ) : const SizedBox.shrink(),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Colors',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const Divider(),
-            ColorPalette(
-              selectedColor: selectedColor,
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Size',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const Divider(),
-            Row(
-              children: [
-                const Text(
-                  'Stroke Size: ',
-                  style: TextStyle(fontSize: 12),
-                ),
-                Slider(
-                  value: strokeSize.value,
-                  min: 0,
-                  max: 50,
-                  onChanged: (val) {
-                    strokeSize.value = val;
-                  },
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                const Text(
-                  'Eraser Size: ',
-                  style: TextStyle(fontSize: 12),
-                ),
-                Slider(
-                  value: eraserSize.value,
-                  min: 0,
-                  max: 80,
-                  onChanged: (val) {
-                    eraserSize.value = val;
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Actions',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const Divider(),
-            Row(
-              children: [
-                TextButton(
-                  onPressed: allSketches.value.isNotEmpty && removedSketch.value == null
-                      ? () {
-                          Sketch last = allSketches.value.last;
-                          List<Sketch> sketches = List.from(allSketches.value)
-                            ..removeLast();
-                          allSketches.value = sketches;
-                          removedSketch.value = last;
-                          currentSketch.value = null;
-                        }
-                      : null,
-                  child: const Text('Undo'),
-                ),
-                TextButton(
-                  onPressed: removedSketch.value != null
-                      ? () {
-                          allSketches.value = List.from(allSketches.value)
-                            ..add(removedSketch.value!);
-                          removedSketch.value = null;
-                        }
-                      : null,
-                  child: const Text('Redo'),
-                ),
-                TextButton(
-                  child: const Text('Clear'),
-                  onPressed: () {
-                    allSketches.value = List.from(allSketches.value)..clear();
-                    currentSketch.value = null;
-                    removedSketch.value = null;
-                  },
-                ),
-                TextButton(
-                  child: const Text('Fork on Github'),
-                  onPressed: () => _launchUrl(kGithubRepo),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Export',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const Divider(),
-            Row(
-              children: [
-                SizedBox(
-                  width: 140,
-                  child: TextButton(
-                    child: const Text('Export PNG'),
-                    onPressed: () async {
-                      Uint8List? pngBytes = await getBytes();
-
-                      if (pngBytes != null) {
-                        await FileSaver.instance.saveFile(
-                          'FlutterLetsDraw-${DateTime.now().toIso8601String()}.png',
-                          pngBytes,
-                          'png',
-                          mimeType: MimeType.PNG,
-                        );
-                      }
-                    },
-                  ),
-                ),
-                SizedBox(
-                  width: 140,
-                  child: TextButton(
-                    child: const Text('Export JPEG'),
-                    onPressed: () async {
-                      Uint8List? pngBytes = await getBytes();
-                      if (pngBytes != null) {
-                        await FileSaver.instance.saveFile(
-                          'FlutterLetsDraw-${DateTime.now().toIso8601String()}.jpeg',
-                          pngBytes,
-                          'jpeg',
-                          mimeType: MimeType.JPEG,
-                        );
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-            // add about me button or follow buttons
-            const Divider(),
-            Center(
-              child: GestureDetector(
-                onTap: () => _launchUrl('https://github.com/JideGuru'),
-                child: const Text(
-                  'Made with 💙 by JideGuru',
-                  style: TextStyle(fontSize: 12),
+        // crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 10),
+          const Text(
+            'Shapes',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const Divider(),
+          Wrap(
+            alignment: WrapAlignment.start,
+            spacing: 5,
+            runSpacing: 5,
+            children: [
+              _IconBox(
+                iconData: FontAwesomeIcons.pencil,
+                selected: drawingMode.value == DrawingMode.pencil,
+                onTap: () => drawingMode.value = DrawingMode.pencil,
+              ),
+              _IconBox(
+                selected: drawingMode.value == DrawingMode.line,
+                onTap: () => drawingMode.value = DrawingMode.line,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 22,
+                      height: 2,
+                      color: drawingMode.value == DrawingMode.line
+                          ? Colors.grey[900]
+                          : Colors.grey,
+                    ),
+                  ],
                 ),
               ),
+              _IconBox(
+                iconData: Icons.hexagon_outlined,
+                selected: drawingMode.value == DrawingMode.polygon,
+                onTap: () => drawingMode.value = DrawingMode.polygon,
+              ),
+              _IconBox(
+                iconData: FontAwesomeIcons.eraser,
+                selected: drawingMode.value == DrawingMode.eraser,
+                onTap: () => drawingMode.value = DrawingMode.eraser,
+              ),
+              _IconBox(
+                iconData: FontAwesomeIcons.square,
+                selected: drawingMode.value == DrawingMode.square,
+                onTap: () => drawingMode.value = DrawingMode.square,
+              ),
+              _IconBox(
+                iconData: FontAwesomeIcons.circle,
+                selected: drawingMode.value == DrawingMode.circle,
+                onTap: () => drawingMode.value = DrawingMode.circle,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Text(
+                'Fill Shape: ',
+                style: TextStyle(fontSize: 12),
+              ),
+              Checkbox(
+                value: filled.value,
+                onChanged: (val) {
+                  filled.value = val ?? false;
+                },
+              ),
+            ],
+          ),
+
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 150),
+            child: drawingMode.value == DrawingMode.polygon ?Row(
+              children: [
+                const Text(
+                  'Polygon Sides: ',
+                  style: TextStyle(fontSize: 12),
+                ),
+                Slider(
+                  value: polygonSides.value.toDouble(),
+                  min: 3,
+                  max: 8,
+                  onChanged: (val) {
+                    polygonSides.value = val.toInt();
+                  },
+                  label: '${polygonSides.value}',
+                  divisions: 5,
+                ),
+              ],
+            ) : const SizedBox.shrink(),
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'Colors',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const Divider(),
+          ColorPalette(
+            selectedColor: selectedColor,
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Size',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const Divider(),
+          Row(
+            children: [
+              const Text(
+                'Stroke Size: ',
+                style: TextStyle(fontSize: 12),
+              ),
+              Slider(
+                value: strokeSize.value,
+                min: 0,
+                max: 50,
+                onChanged: (val) {
+                  strokeSize.value = val;
+                },
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              const Text(
+                'Eraser Size: ',
+                style: TextStyle(fontSize: 12),
+              ),
+              Slider(
+                value: eraserSize.value,
+                min: 0,
+                max: 80,
+                onChanged: (val) {
+                  eraserSize.value = val;
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Actions',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const Divider(),
+          Wrap(
+            children: [
+              TextButton(
+                onPressed: allSketches.value.isNotEmpty && removedSketch.value == null
+                    ? () {
+                        Sketch last = allSketches.value.last;
+                        List<Sketch> sketches = List.from(allSketches.value)
+                          ..removeLast();
+                        allSketches.value = sketches;
+                        removedSketch.value = last;
+                        currentSketch.value = null;
+                      }
+                    : null,
+                child: const Text('Undo'),
+              ),
+              TextButton(
+                onPressed: removedSketch.value != null
+                    ? () {
+                        allSketches.value = List.from(allSketches.value)
+                          ..add(removedSketch.value!);
+                        removedSketch.value = null;
+                      }
+                    : null,
+                child: const Text('Redo'),
+              ),
+              TextButton(
+                child: const Text('Clear'),
+                onPressed: () {
+                  allSketches.value = List.from(allSketches.value)..clear();
+                  currentSketch.value = null;
+                  removedSketch.value = null;
+                },
+              ),
+              TextButton(
+                child: const Text('Fork on Github'),
+                onPressed: () => _launchUrl(kGithubRepo),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Export',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const Divider(),
+          Row(
+            children: [
+              SizedBox(
+                width: 140,
+                child: TextButton(
+                  child: const Text('Export PNG'),
+                  onPressed: () async {
+                    Uint8List? pngBytes = await getBytes();
+
+                    if (pngBytes != null) {
+                      await FileSaver.instance.saveFile(
+                        'FlutterLetsDraw-${DateTime.now().toIso8601String()}.png',
+                        pngBytes,
+                        'png',
+                        mimeType: MimeType.PNG,
+                      );
+                    }
+                  },
+                ),
+              ),
+              SizedBox(
+                width: 140,
+                child: TextButton(
+                  child: const Text('Export JPEG'),
+                  onPressed: () async {
+                    Uint8List? pngBytes = await getBytes();
+                    if (pngBytes != null) {
+                      await FileSaver.instance.saveFile(
+                        'FlutterLetsDraw-${DateTime.now().toIso8601String()}.jpeg',
+                        pngBytes,
+                        'jpeg',
+                        mimeType: MimeType.JPEG,
+                      );
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+          // add about me button or follow buttons
+          const Divider(),
+          Center(
+            child: GestureDetector(
+              onTap: () => _launchUrl('https://github.com/JideGuru'),
+              child: const Text(
+                'Made with 💙 by JideGuru',
+                style: TextStyle(fontSize: 12),
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
