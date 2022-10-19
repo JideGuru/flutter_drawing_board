@@ -1,6 +1,8 @@
 import 'dart:ui' as ui;
+import 'dart:js' as js;
 
 import 'package:file_saver/file_saver.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -302,8 +304,12 @@ class CanvasSideBar extends StatelessWidget {
   }
 
   Future<void> _launchUrl(String url) async {
-    if (!await launchUrl(Uri.parse(url))) {
-      throw 'Could not launch $url';
+    if (kIsWeb) {
+      js.context.callMethod('open', [url,'_blank']);
+    } else {
+      if (!await launchUrl(Uri.parse(url))) {
+        throw 'Could not launch $url';
+      }
     }
   }
 
