@@ -287,10 +287,13 @@ class CanvasSideBar extends StatelessWidget {
             ),
             // add about me button or follow buttons
             const Divider(),
-            const Center(
-              child: Text(
-                'Made with 💙 by JideGuru',
-                style: TextStyle(fontSize: 12),
+            Center(
+              child: GestureDetector(
+                onTap: () => _launchUrl('https://github.com/JideGuru'),
+                child: const Text(
+                  'Made with 💙 by JideGuru',
+                  style: TextStyle(fontSize: 12),
+                ),
               ),
             ),
           ],
