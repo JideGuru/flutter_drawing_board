@@ -4,10 +4,12 @@ import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_drawing_board/main.dart';
 import 'package:flutter_drawing_board/view/drawing_canvas/models/drawing_mode.dart';
 import 'package:flutter_drawing_board/view/drawing_canvas/models/sketch.dart';
 import 'package:flutter_drawing_board/view/drawing_canvas/widgets/color_palette.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CanvasSideBar extends StatelessWidget {
   final ValueNotifier<Color> selectedColor;
@@ -232,6 +234,10 @@ class CanvasSideBar extends StatelessWidget {
                     removedSketch.value = null;
                   },
                 ),
+                TextButton(
+                  child: const Text('Fork on Github'),
+                  onPressed: () => _launchUrl(kGithubRepo),
+                ),
               ],
             ),
             const SizedBox(height: 20),
@@ -247,19 +253,15 @@ class CanvasSideBar extends StatelessWidget {
                   child: TextButton(
                     child: const Text('Export PNG'),
                     onPressed: () async {
-                      try {
-                        Uint8List? pngBytes = await getBytes();
+                      Uint8List? pngBytes = await getBytes();
 
-                        if (pngBytes != null) {
-                          await FileSaver.instance.saveFile(
-                            'FlutterLetsDraw-${DateTime.now().toIso8601String()}.png',
-                            pngBytes,
-                            'png',
-                            mimeType: MimeType.PNG,
-                          );
-                        }
-                      } catch (e) {
-                        print(e);
+                      if (pngBytes != null) {
+                        await FileSaver.instance.saveFile(
+                          'FlutterLetsDraw-${DateTime.now().toIso8601String()}.png',
+                          pngBytes,
+                          'png',
+                          mimeType: MimeType.PNG,
+                        );
                       }
                     },
                   ),
@@ -269,18 +271,14 @@ class CanvasSideBar extends StatelessWidget {
                   child: TextButton(
                     child: const Text('Export JPEG'),
                     onPressed: () async {
-                      try {
-                        Uint8List? pngBytes = await getBytes();
-                        if (pngBytes != null) {
-                          await FileSaver.instance.saveFile(
-                            'FlutterLetsDraw-${DateTime.now().toIso8601String()}.jpeg',
-                            pngBytes,
-                            'jpeg',
-                            mimeType: MimeType.JPEG,
-                          );
-                        }
-                      } catch (e) {
-                        print(e);
+                      Uint8List? pngBytes = await getBytes();
+                      if (pngBytes != null) {
+                        await FileSaver.instance.saveFile(
+                          'FlutterLetsDraw-${DateTime.now().toIso8601String()}.jpeg',
+                          pngBytes,
+                          'jpeg',
+                          mimeType: MimeType.JPEG,
+                        );
                       }
                     },
                   ),
@@ -299,6 +297,12 @@ class CanvasSideBar extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _launchUrl(String url) async {
+    if (!await launchUrl(Uri.parse(url))) {
+      throw 'Could not launch $url';
+    }
   }
 
   Future<Uint8List?> getBytes() async {

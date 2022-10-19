@@ -6,6 +6,7 @@ void main() {
 }
 
 const Color kCanvasColor = Color(0xfff2f3f7);
+const String kGithubRepo = 'https://github.com/JideGuru/flutter_drawing_board';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

@@ -104,12 +104,12 @@ class DrawingCanvas extends HookWidget {
       child: ValueListenableBuilder<List<Sketch>>(
         valueListenable: allSketches,
         builder: (context, sketches, _) {
-          // Clipping makes sure the painting doesnt leave the canvas
           return RepaintBoundary(
             key: canvasGlobalKey,
-            child: SizedBox(
+            child: Container(
               height: height,
               width: width,
+              color: kCanvasColor,
               child: CustomPaint(
                 painter: SketchPainter(
                   sketches: sketches,
@@ -221,7 +221,7 @@ class SketchPainter extends CustomPainter {
         Offset pointsCenter =
             (sketch.points.first / 2) + (sketch.points.last / 2);
 
-        double radian = 0.2;
+        double radian = 0.0;
         // Calculate Polygon's radius from the first and last offsets
         double radius = (sketch.points.first - sketch.points.last).distance;
         Offset startPoint =

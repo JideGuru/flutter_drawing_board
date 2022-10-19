@@ -12,7 +12,8 @@ Try out the DEMO here
 - Any Operating System (ie. MacOS X, Linux, Windows)
 - Any IDE with Flutter SDK installed (ie. IntelliJ, Android Studio, VSCode etc)
 - A little knowledge of Dart and Flutter
-- 
+
+
 ## ✨ Features
 
 - [x] Scribble.
@@ -20,7 +21,8 @@ Try out the DEMO here
 - [x] Eraser.
 - [x] Undo and Redo
 - [x] Export as Image
-- 
+
+
 ## 📸 ScreenShots
 
 <img src="assets/screenshots/ss1.png"/>
