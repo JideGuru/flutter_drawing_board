@@ -18,7 +18,7 @@ Try out the DEMO here
 ## ✨ Features
 
 - [x] Scribble.
-- [x] Draw Shapes.
+- [x] Draw Shapes (Line, Polygon, Ellipse and Rectangle).
 - [x] Eraser.
 - [x] Undo and Redo
 - [x] Export as Image

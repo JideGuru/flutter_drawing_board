@@ -1,9 +1,9 @@
 enum DrawingMode {
   pencil,
   line,
+  arrow,
   eraser,
-  squareFilled,
-  squareOutline,
-  circleFilled,
-  circleOutline,
+  square,
+  circle,
+  polygon,
 }

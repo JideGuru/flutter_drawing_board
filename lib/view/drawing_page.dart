@@ -15,6 +15,8 @@ class DrawingPage extends HookWidget {
     final strokeSize = useState<double>(10);
     final eraserSize = useState<double>(30);
     final drawingMode = useState(DrawingMode.pencil);
+    final filled = useState<bool>(false);
+    final polygonSides = useState<int>(3);
 
     final canvasGlobalKey = GlobalKey();
 
@@ -45,6 +47,8 @@ class DrawingPage extends HookWidget {
               removedSketch: removedSketch,
               allSketches: allSketches,
               canvasGlobalKey: canvasGlobalKey,
+              filled: filled,
+              polygonSides: polygonSides,
             ),
           ),
           Positioned(
@@ -64,6 +68,8 @@ class DrawingPage extends HookWidget {
                 removedSketch: removedSketch,
                 allSketches: allSketches,
                 canvasGlobalKey: canvasGlobalKey,
+                filled: filled,
+                polygonSides: polygonSides,
               ),
             ),
           ),

@@ -18,6 +18,8 @@ class CanvasSideBar extends StatelessWidget {
   final ValueNotifier<Sketch?> removedSketch;
   final ValueNotifier<List<Sketch>> allSketches;
   final GlobalKey canvasGlobalKey;
+  final ValueNotifier<bool> filled;
+  final ValueNotifier<int> polygonSides;
 
   const CanvasSideBar({
     Key? key,
@@ -29,6 +31,8 @@ class CanvasSideBar extends StatelessWidget {
     required this.currentSketch,
     required this.allSketches,
     required this.canvasGlobalKey,
+    required this.filled,
+    required this.polygonSides,
   }) : super(key: key);
 
   @override
@@ -84,33 +88,65 @@ class CanvasSideBar extends StatelessWidget {
                   ),
                 ),
                 _IconBox(
+                  iconData: Icons.hexagon_outlined,
+                  selected: drawingMode.value == DrawingMode.polygon,
+                  onTap: () => drawingMode.value = DrawingMode.polygon,
+                ),
+                _IconBox(
                   iconData: FontAwesomeIcons.eraser,
                   selected: drawingMode.value == DrawingMode.eraser,
                   onTap: () => drawingMode.value = DrawingMode.eraser,
                 ),
                 _IconBox(
-                  iconData: FontAwesomeIcons.solidSquare,
-                  selected: drawingMode.value == DrawingMode.squareFilled,
-                  onTap: () => drawingMode.value = DrawingMode.squareFilled,
-                ),
-                _IconBox(
                   iconData: FontAwesomeIcons.square,
-                  selected: drawingMode.value == DrawingMode.squareOutline,
-                  onTap: () => drawingMode.value = DrawingMode.squareOutline,
-                ),
-                _IconBox(
-                  iconData: FontAwesomeIcons.solidCircle,
-                  selected: drawingMode.value == DrawingMode.circleFilled,
-                  onTap: () => drawingMode.value = DrawingMode.circleFilled,
+                  selected: drawingMode.value == DrawingMode.square,
+                  onTap: () => drawingMode.value = DrawingMode.square,
                 ),
                 _IconBox(
                   iconData: FontAwesomeIcons.circle,
-                  selected: drawingMode.value == DrawingMode.circleOutline,
-                  onTap: () => drawingMode.value = DrawingMode.circleOutline,
+                  selected: drawingMode.value == DrawingMode.circle,
+                  onTap: () => drawingMode.value = DrawingMode.circle,
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Text(
+                  'Fill Shape: ',
+                  style: TextStyle(fontSize: 12),
+                ),
+                Checkbox(
+                  value: filled.value,
+                  onChanged: (val) {
+                    filled.value = val ?? false;
+                  },
+                ),
+              ],
+            ),
+
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 150),
+              child: drawingMode.value == DrawingMode.polygon ?Row(
+                children: [
+                  const Text(
+                    'Polygon Sides: ',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  Slider(
+                    value: polygonSides.value.toDouble(),
+                    min: 3,
+                    max: 8,
+                    onChanged: (val) {
+                      polygonSides.value = val.toInt();
+                    },
+                    label: '${polygonSides.value}',
+                    divisions: 5,
+                  ),
+                ],
+              ) : const SizedBox.shrink(),
+            ),
+            const SizedBox(height: 10),
             const Text(
               'Colors',
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -231,11 +267,18 @@ class CanvasSideBar extends StatelessWidget {
                 SizedBox(
                   width: 140,
                   child: TextButton(
-                    child: const Text('Export SVG'),
+                    child: const Text('Export JPEG'),
                     onPressed: () async {
                       try {
-                        // Uint8List? pngBytes = await getBytes();
-                        print('Not implemented');
+                        Uint8List? pngBytes = await getBytes();
+                        if (pngBytes != null) {
+                          await FileSaver.instance.saveFile(
+                            'FlutterLetsDraw-${DateTime.now().toIso8601String()}.jpeg',
+                            pngBytes,
+                            'jpeg',
+                            mimeType: MimeType.JPEG,
+                          );
+                        }
                       } catch (e) {
                         print(e);
                       }

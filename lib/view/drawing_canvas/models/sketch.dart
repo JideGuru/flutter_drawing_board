@@ -7,22 +7,29 @@ class Sketch {
   final double size;
   final SketchType type;
   final bool filled;
+  final int sides;
 
   Sketch({
     required this.points,
     this.color = Colors.black,
     this.type = SketchType.scribble,
     this.filled = true,
+    this.sides = 3,
     required this.size,
   });
 
-  factory Sketch.fromDrawingMode(Sketch sketch, DrawingMode drawingMode) {
+  factory Sketch.fromDrawingMode(
+      Sketch sketch, DrawingMode drawingMode, bool filled) {
     return Sketch(
       points: sketch.points,
       color: sketch.color,
       size: sketch.size,
-      filled: drawingMode == DrawingMode.circleFilled ||
-          drawingMode == DrawingMode.squareFilled,
+      filled: drawingMode == DrawingMode.line ||
+              drawingMode == DrawingMode.pencil ||
+              drawingMode == DrawingMode.eraser
+          ? false
+          : filled,
+      sides: sketch.sides,
       type: () {
         switch (drawingMode) {
           case DrawingMode.eraser:
@@ -30,12 +37,12 @@ class Sketch {
             return SketchType.scribble;
           case DrawingMode.line:
             return SketchType.line;
-          case DrawingMode.squareFilled:
-          case DrawingMode.squareOutline:
+          case DrawingMode.square:
             return SketchType.square;
-          case DrawingMode.circleFilled:
-          case DrawingMode.circleOutline:
+          case DrawingMode.circle:
             return SketchType.circle;
+          case DrawingMode.polygon:
+            return SketchType.polygon;
           default:
             return SketchType.scribble;
         }
@@ -44,32 +51,32 @@ class Sketch {
   }
 
   Map<String, dynamic> toJson() {
-    List<Map> pointsMap =
-    points.map((e) => {'dx': e.dx, 'dy': e.dy}).toList();
+    List<Map> pointsMap = points.map((e) => {'dx': e.dx, 'dy': e.dy}).toList();
     return {
       'points': pointsMap,
       'color': color.toHex(),
       'size': size,
       'filled': filled,
       'type': type.toRegularString(),
+      'sides': sides,
     };
   }
 
   factory Sketch.fromJson(Map<String, dynamic> json) {
-    List<Offset> points = (json['points'] as List)
-        .map((e) => Offset(e['dx'], e['dy']))
-        .toList();
+    List<Offset> points =
+        (json['points'] as List).map((e) => Offset(e['dx'], e['dy'])).toList();
     return Sketch(
       points: points,
       color: (json['color'] as String).toColor(),
       size: json['size'],
       filled: json['filled'],
       type: (json['type'] as String).toSketchTypeEnum(),
+      sides: json['sides'],
     );
   }
 }
 
-enum SketchType { scribble, line, square, circle }
+enum SketchType { scribble, line, square, circle, polygon }
 
 extension SketchTypeX on SketchType {
   toRegularString() => toString().split('.')[1];
