@@ -1,5 +1,4 @@
 import 'dart:ui' as ui;
-import 'dart:js' as js;
 
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/foundation.dart';
@@ -13,6 +12,7 @@ import 'package:flutter_drawing_board/view/drawing_canvas/widgets/color_palette.
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:universal_html/html.dart' as html;
 
 class CanvasSideBar extends HookWidget {
   final ValueNotifier<Color> selectedColor;
@@ -42,7 +42,7 @@ class CanvasSideBar extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _scrollController = useScrollController();
+    final scrollController = useScrollController();
     return Container(
       width: 300,
       height: MediaQuery.of(context).size.height < 680 ? 450 : 610,
@@ -58,12 +58,12 @@ class CanvasSideBar extends HookWidget {
         ],
       ),
       child: Scrollbar(
-        controller: _scrollController,
+        controller: scrollController,
         thumbVisibility: true,
         trackVisibility: true,
         child: ListView(
           padding: const EdgeInsets.all(10.0),
-          controller: _scrollController,
+          controller: scrollController,
           children: [
             const SizedBox(height: 10),
             const Text(
@@ -312,7 +312,10 @@ class CanvasSideBar extends HookWidget {
 
   Future<void> _launchUrl(String url) async {
     if (kIsWeb) {
-      js.context.callMethod('open', [url,'_blank']);
+      html.window.open(
+        url,
+        url,
+      );
     } else {
       if (!await launchUrl(Uri.parse(url))) {
         throw 'Could not launch $url';

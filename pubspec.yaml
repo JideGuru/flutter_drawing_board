@@ -38,6 +38,7 @@ dependencies:
   file_saver: ^0.1.1
   font_awesome_flutter: ^10.2.1
   url_launcher: ^6.1.6
+  universal_html: ^2.0.8
 
 dev_dependencies:
   flutter_test:
