@@ -68,8 +68,6 @@ class DrawingCanvas extends HookWidget {
   }
 
   void onPointerMove(PointerMoveEvent details, BuildContext context) {
-    // close sidebar if open
-    if (sideBarController.value == 1) sideBarController.reverse();
     // clear removed sketch to disable 'redo' button
     removedSketch.value = null;
     final box = context.findRenderObject() as RenderBox;
