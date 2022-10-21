@@ -1,3 +1,5 @@
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' show AnchorElement;
 import 'dart:ui' as ui;
 
 import 'package:file_saver/file_saver.dart';
@@ -11,8 +13,8 @@ import 'package:flutter_drawing_board/view/drawing_canvas/models/sketch.dart';
 import 'package:flutter_drawing_board/view/drawing_canvas/widgets/color_palette.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:universal_html/html.dart' as html;
+import 'package:url_launcher/url_launcher.dart';
 
 class CanvasSideBar extends HookWidget {
   final ValueNotifier<Color> selectedColor;
@@ -137,24 +139,26 @@ class CanvasSideBar extends HookWidget {
 
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
-              child: drawingMode.value == DrawingMode.polygon ?Row(
-                children: [
-                  const Text(
-                    'Polygon Sides: ',
-                    style: TextStyle(fontSize: 12),
-                  ),
-                  Slider(
-                    value: polygonSides.value.toDouble(),
-                    min: 3,
-                    max: 8,
-                    onChanged: (val) {
-                      polygonSides.value = val.toInt();
-                    },
-                    label: '${polygonSides.value}',
-                    divisions: 5,
-                  ),
-                ],
-              ) : const SizedBox.shrink(),
+              child: drawingMode.value == DrawingMode.polygon
+                  ? Row(
+                      children: [
+                        const Text(
+                          'Polygon Sides: ',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                        Slider(
+                          value: polygonSides.value.toDouble(),
+                          min: 3,
+                          max: 8,
+                          onChanged: (val) {
+                            polygonSides.value = val.toInt();
+                          },
+                          label: '${polygonSides.value}',
+                          divisions: 5,
+                        ),
+                      ],
+                    )
+                  : const SizedBox.shrink(),
             ),
             const SizedBox(height: 10),
             const Text(
@@ -262,15 +266,7 @@ class CanvasSideBar extends HookWidget {
                     child: const Text('Export PNG'),
                     onPressed: () async {
                       Uint8List? pngBytes = await getBytes();
-
-                      if (pngBytes != null) {
-                        await FileSaver.instance.saveFile(
-                          'FlutterLetsDraw-${DateTime.now().toIso8601String()}.png',
-                          pngBytes,
-                          'png',
-                          mimeType: MimeType.PNG,
-                        );
-                      }
+                      if (pngBytes != null) saveFile(pngBytes, 'png');
                     },
                   ),
                 ),
@@ -280,14 +276,7 @@ class CanvasSideBar extends HookWidget {
                     child: const Text('Export JPEG'),
                     onPressed: () async {
                       Uint8List? pngBytes = await getBytes();
-                      if (pngBytes != null) {
-                        await FileSaver.instance.saveFile(
-                          'FlutterLetsDraw-${DateTime.now().toIso8601String()}.jpeg',
-                          pngBytes,
-                          'jpeg',
-                          mimeType: MimeType.JPEG,
-                        );
-                      }
+                      if (pngBytes != null) saveFile(pngBytes, 'jpeg');
                     },
                   ),
                 ),
@@ -308,6 +297,24 @@ class CanvasSideBar extends HookWidget {
         ),
       ),
     );
+  }
+
+  void saveFile(Uint8List bytes, String extension) async {
+    if (kIsWeb) {
+      AnchorElement()
+        ..href = '${Uri.dataFromBytes(bytes, mimeType: 'image/$extension')}'
+        ..download =
+            'FlutterLetsDraw-${DateTime.now().toIso8601String()}.$extension'
+        ..style.display = 'none'
+        ..click();
+    } else {
+      await FileSaver.instance.saveFile(
+        'FlutterLetsDraw-${DateTime.now().toIso8601String()}.$extension',
+        bytes,
+        extension,
+        mimeType: extension == 'png' ? MimeType.PNG : MimeType.JPEG,
+      );
+    }
   }
 
   Future<void> _launchUrl(String url) async {
