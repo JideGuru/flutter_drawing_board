@@ -22,7 +22,6 @@ class CanvasSideBar extends StatefulHookWidget {
   final ValueNotifier<double> eraserSize;
   final ValueNotifier<DrawingMode> drawingMode;
   final ValueNotifier<Sketch?> currentSketch;
-  final ValueNotifier<Sketch?> removedSketch;
   final ValueNotifier<List<Sketch>> allSketches;
   final GlobalKey canvasGlobalKey;
   final ValueNotifier<bool> filled;
@@ -34,7 +33,6 @@ class CanvasSideBar extends StatefulHookWidget {
     required this.strokeSize,
     required this.eraserSize,
     required this.drawingMode,
-    required this.removedSketch,
     required this.currentSketch,
     required this.allSketches,
     required this.canvasGlobalKey,
