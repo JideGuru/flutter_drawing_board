@@ -16,7 +16,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:url_launcher/url_launcher.dart';
 
-class CanvasSideBar extends HookWidget {
+class CanvasSideBar extends StatefulHookWidget {
   final ValueNotifier<Color> selectedColor;
   final ValueNotifier<double> strokeSize;
   final ValueNotifier<double> eraserSize;
@@ -41,6 +41,22 @@ class CanvasSideBar extends HookWidget {
     required this.filled,
     required this.polygonSides,
   }) : super(key: key);
+
+  @override
+  State<CanvasSideBar> createState() => _CanvasSideBarState();
+}
+
+class _CanvasSideBarState extends State<CanvasSideBar> {
+  late final _undoRedoStack = _UndoRedoStack(
+    sketchesNotifier: widget.allSketches,
+    currentSketchNotifier: widget.currentSketch,
+  );
+
+  @override
+  void dispose() {
+    _undoRedoStack.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,19 +96,19 @@ class CanvasSideBar extends HookWidget {
               children: [
                 _IconBox(
                   iconData: FontAwesomeIcons.pencil,
-                  selected: drawingMode.value == DrawingMode.pencil,
-                  onTap: () => drawingMode.value = DrawingMode.pencil,
+                  selected: widget.drawingMode.value == DrawingMode.pencil,
+                  onTap: () => widget.drawingMode.value = DrawingMode.pencil,
                 ),
                 _IconBox(
-                  selected: drawingMode.value == DrawingMode.line,
-                  onTap: () => drawingMode.value = DrawingMode.line,
+                  selected: widget.drawingMode.value == DrawingMode.line,
+                  onTap: () => widget.drawingMode.value = DrawingMode.line,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
                         width: 22,
                         height: 2,
-                        color: drawingMode.value == DrawingMode.line
+                        color: widget.drawingMode.value == DrawingMode.line
                             ? Colors.grey[900]
                             : Colors.grey,
                       ),
@@ -101,23 +117,23 @@ class CanvasSideBar extends HookWidget {
                 ),
                 _IconBox(
                   iconData: Icons.hexagon_outlined,
-                  selected: drawingMode.value == DrawingMode.polygon,
-                  onTap: () => drawingMode.value = DrawingMode.polygon,
+                  selected: widget.drawingMode.value == DrawingMode.polygon,
+                  onTap: () => widget.drawingMode.value = DrawingMode.polygon,
                 ),
                 _IconBox(
                   iconData: FontAwesomeIcons.eraser,
-                  selected: drawingMode.value == DrawingMode.eraser,
-                  onTap: () => drawingMode.value = DrawingMode.eraser,
+                  selected: widget.drawingMode.value == DrawingMode.eraser,
+                  onTap: () => widget.drawingMode.value = DrawingMode.eraser,
                 ),
                 _IconBox(
                   iconData: FontAwesomeIcons.square,
-                  selected: drawingMode.value == DrawingMode.square,
-                  onTap: () => drawingMode.value = DrawingMode.square,
+                  selected: widget.drawingMode.value == DrawingMode.square,
+                  onTap: () => widget.drawingMode.value = DrawingMode.square,
                 ),
                 _IconBox(
                   iconData: FontAwesomeIcons.circle,
-                  selected: drawingMode.value == DrawingMode.circle,
-                  onTap: () => drawingMode.value = DrawingMode.circle,
+                  selected: widget.drawingMode.value == DrawingMode.circle,
+                  onTap: () => widget.drawingMode.value = DrawingMode.circle,
                 ),
               ],
             ),
@@ -129,9 +145,9 @@ class CanvasSideBar extends HookWidget {
                   style: TextStyle(fontSize: 12),
                 ),
                 Checkbox(
-                  value: filled.value,
+                  value: widget.filled.value,
                   onChanged: (val) {
-                    filled.value = val ?? false;
+                    widget.filled.value = val ?? false;
                   },
                 ),
               ],
@@ -139,7 +155,7 @@ class CanvasSideBar extends HookWidget {
 
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
-              child: drawingMode.value == DrawingMode.polygon
+              child: widget.drawingMode.value == DrawingMode.polygon
                   ? Row(
                       children: [
                         const Text(
@@ -147,13 +163,13 @@ class CanvasSideBar extends HookWidget {
                           style: TextStyle(fontSize: 12),
                         ),
                         Slider(
-                          value: polygonSides.value.toDouble(),
+                          value: widget.polygonSides.value.toDouble(),
                           min: 3,
                           max: 8,
                           onChanged: (val) {
-                            polygonSides.value = val.toInt();
+                            widget.polygonSides.value = val.toInt();
                           },
-                          label: '${polygonSides.value}',
+                          label: '${widget.polygonSides.value}',
                           divisions: 5,
                         ),
                       ],
@@ -167,7 +183,7 @@ class CanvasSideBar extends HookWidget {
             ),
             const Divider(),
             ColorPalette(
-              selectedColor: selectedColor,
+              selectedColor: widget.selectedColor,
             ),
             const SizedBox(height: 20),
             const Text(
@@ -182,11 +198,11 @@ class CanvasSideBar extends HookWidget {
                   style: TextStyle(fontSize: 12),
                 ),
                 Slider(
-                  value: strokeSize.value,
+                  value: widget.strokeSize.value,
                   min: 0,
                   max: 50,
                   onChanged: (val) {
-                    strokeSize.value = val;
+                    widget.strokeSize.value = val;
                   },
                 ),
               ],
@@ -198,11 +214,11 @@ class CanvasSideBar extends HookWidget {
                   style: TextStyle(fontSize: 12),
                 ),
                 Slider(
-                  value: eraserSize.value,
+                  value: widget.eraserSize.value,
                   min: 0,
                   max: 80,
                   onChanged: (val) {
-                    eraserSize.value = val;
+                    widget.eraserSize.value = val;
                   },
                 ),
               ],
@@ -216,34 +232,29 @@ class CanvasSideBar extends HookWidget {
             Wrap(
               children: [
                 TextButton(
-                  onPressed: allSketches.value.isNotEmpty
+                  onPressed: widget.allSketches.value.isNotEmpty
                       ? () {
-                          Sketch last = allSketches.value.last;
-                          List<Sketch> sketches = List.from(allSketches.value)
-                            ..removeLast();
-                          allSketches.value = sketches;
-                          removedSketch.value = last;
-                          currentSketch.value = null;
+                          _undoRedoStack.undo();
                         }
                       : null,
                   child: const Text('Undo'),
                 ),
-                TextButton(
-                  onPressed: removedSketch.value != null
-                      ? () {
-                          allSketches.value = List.from(allSketches.value)
-                            ..add(removedSketch.value!);
-                          removedSketch.value = null;
-                        }
-                      : null,
-                  child: const Text('Redo'),
-                ),
+                ValueListenableBuilder<bool>(
+                    valueListenable: _undoRedoStack._canRedo,
+                    builder: (_, canRedo, __) {
+                      return TextButton(
+                        onPressed: canRedo
+                            ? () {
+                                _undoRedoStack.redo();
+                              }
+                            : null,
+                        child: const Text('Redo'),
+                      );
+                    }),
                 TextButton(
                   child: const Text('Clear'),
                   onPressed: () {
-                    allSketches.value = List.from(allSketches.value)..clear();
-                    currentSketch.value = null;
-                    removedSketch.value = null;
+                    _undoRedoStack.clear();
                   },
                 ),
                 TextButton(
@@ -331,7 +342,7 @@ class CanvasSideBar extends HookWidget {
   }
 
   Future<Uint8List?> getBytes() async {
-    RenderRepaintBoundary boundary = canvasGlobalKey.currentContext
+    RenderRepaintBoundary boundary = widget.canvasGlobalKey.currentContext
         ?.findRenderObject() as RenderRepaintBoundary;
     ui.Image image = await boundary.toImage();
     ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
@@ -377,5 +388,68 @@ class _IconBox extends StatelessWidget {
             ),
       ),
     );
+  }
+}
+
+///A data structure for undoing and redoing sketches.
+class _UndoRedoStack {
+  _UndoRedoStack({
+    required this.sketchesNotifier,
+    required this.currentSketchNotifier,
+  }) {
+    _sketchCount = sketchesNotifier.value.length;
+    sketchesNotifier.addListener(_sketchesCountListener);
+  }
+
+  final ValueNotifier<List<Sketch>> sketchesNotifier;
+  final ValueNotifier<Sketch?> currentSketchNotifier;
+
+  ///Collection of sketches that can be redone.
+  late final List<Sketch> _redoStack = [];
+
+  ///Whether redo operation is possible.
+  ValueNotifier<bool> get canRedo => _canRedo;
+  late final ValueNotifier<bool> _canRedo = ValueNotifier(false);
+
+  late int _sketchCount;
+
+  void _sketchesCountListener() {
+    if (sketchesNotifier.value.length > _sketchCount) {
+      //if user draws new sketch,
+      //history is invalidated so clear redo stack
+      _redoStack.clear();
+      _canRedo.value = false;
+      _sketchCount = sketchesNotifier.value.length;
+    }
+  }
+
+  void clear() {
+    _sketchCount = 0;
+    sketchesNotifier.value = [];
+    _canRedo.value = false;
+    currentSketchNotifier.value = null;
+  }
+
+  void undo() {
+    final sketches = List<Sketch>.from(sketchesNotifier.value);
+    if (sketches.isNotEmpty) {
+      _sketchCount--;
+      _redoStack.add(sketches.removeLast());
+      sketchesNotifier.value = sketches;
+      _canRedo.value = true;
+      currentSketchNotifier.value = null;
+    }
+  }
+
+  void redo() {
+    if (_redoStack.isEmpty) return;
+    final sketch = _redoStack.removeLast();
+    _canRedo.value = _redoStack.isNotEmpty;
+    _sketchCount++;
+    sketchesNotifier.value = [...sketchesNotifier.value, sketch];
+  }
+
+  void dispose() {
+    sketchesNotifier.removeListener(_sketchesCountListener);
   }
 }
