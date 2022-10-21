@@ -1,4 +1,4 @@
-# 🎨🎨Flutter Drawing app
+# 🎨🎨Let's Draw
 [![Twitter Follow](https://img.shields.io/twitter/follow/iamjideguru.svg?style=social)](https://twitter.com/iamjideguru)
 
 A simple drawing app made with Flutter
