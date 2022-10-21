@@ -191,6 +191,16 @@ class SketchPainter extends CustomPainter {
         Offset(sketch.points.last.dx, sketch.points.last.dy),
       );
 
+      // define first and last points for convenience
+      Offset firstPoint = sketch.points.first;
+      Offset lastPoint = sketch.points.last;
+
+      // Calculate center point from the first and last points
+      Offset centerPoint = (firstPoint / 2) + (lastPoint / 2);
+
+      // Calculate path's radius from the first and last points
+      double radius = (firstPoint - lastPoint).distance / 2;
+
       if (sketch.type == SketchType.scribble) {
         canvas.drawPath(path, paint);
       } else if (sketch.type == SketchType.square) {
@@ -199,25 +209,18 @@ class SketchPainter extends CustomPainter {
           paint,
         );
       } else if (sketch.type == SketchType.line) {
-        canvas.drawLine(
-          Offset(sketch.points.first.dx, sketch.points.first.dy),
-          Offset(sketch.points.last.dx, sketch.points.last.dy),
-          paint,
-        );
+        canvas.drawLine(firstPoint, lastPoint, paint);
       } else if (sketch.type == SketchType.circle) {
         canvas.drawOval(rect, paint);
+        // Uncomment this line if you need a PERFECT CIRCLE
+        // canvas.drawCircle(centerPoint, radius , paint);
       } else if (sketch.type == SketchType.polygon) {
         Path polygonPath = Path();
         int sides = sketch.sides;
         var angle = (math.pi * 2) / sides;
 
-        // Calculate Polygon's center from the first and last offsets
-        Offset centerPoint =
-            (sketch.points.first / 2) + (sketch.points.last / 2);
-
         double radian = 0.0;
-        // Calculate Polygon's radius from the first and last offsets
-        double radius = (sketch.points.first - sketch.points.last).distance;
+
         Offset startPoint =
             Offset(radius * math.cos(radian), radius * math.sin(radian));
 
