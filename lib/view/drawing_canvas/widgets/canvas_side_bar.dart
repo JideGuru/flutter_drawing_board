@@ -212,7 +212,7 @@ class CanvasSideBar extends HookWidget {
             Wrap(
               children: [
                 TextButton(
-                  onPressed: allSketches.value.isNotEmpty && removedSketch.value == null
+                  onPressed: allSketches.value.isNotEmpty
                       ? () {
                           Sketch last = allSketches.value.last;
                           List<Sketch> sketches = List.from(allSketches.value)
