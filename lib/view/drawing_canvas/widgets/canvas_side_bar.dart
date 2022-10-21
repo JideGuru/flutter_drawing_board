@@ -413,7 +413,7 @@ class _UndoRedoStack {
 
   void _sketchesCountListener() {
     if (sketchesNotifier.value.length > _sketchCount) {
-      //if user draws new sketch,
+      //if a new sketch is drawn,
       //history is invalidated so clear redo stack
       _redoStack.clear();
       _canRedo.value = false;
