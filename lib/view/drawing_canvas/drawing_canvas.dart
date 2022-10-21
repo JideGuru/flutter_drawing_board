@@ -15,7 +15,6 @@ class DrawingCanvas extends HookWidget {
   final ValueNotifier<DrawingMode> drawingMode;
   final AnimationController sideBarController;
   final ValueNotifier<Sketch?> currentSketch;
-  final ValueNotifier<Sketch?> removedSketch;
   final ValueNotifier<List<Sketch>> allSketches;
   final GlobalKey canvasGlobalKey;
   final ValueNotifier<int> polygonSides;
@@ -31,7 +30,6 @@ class DrawingCanvas extends HookWidget {
     required this.drawingMode,
     required this.sideBarController,
     required this.currentSketch,
-    required this.removedSketch,
     required this.allSketches,
     required this.canvasGlobalKey,
     required this.filled,
@@ -68,8 +66,6 @@ class DrawingCanvas extends HookWidget {
   }
 
   void onPointerMove(PointerMoveEvent details, BuildContext context) {
-    // clear removed sketch to disable 'redo' button
-    removedSketch.value = null;
     final box = context.findRenderObject() as RenderBox;
     final offset = box.globalToLocal(details.position);
     final points = List<Offset>.from(currentSketch.value?.points ?? [])
