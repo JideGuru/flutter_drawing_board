@@ -212,7 +212,7 @@ class SketchPainter extends CustomPainter {
         var angle = (math.pi * 2) / sides;
 
         // Calculate Polygon's center from the first and last offsets
-        Offset pointsCenter =
+        Offset centerPoint =
             (sketch.points.first / 2) + (sketch.points.last / 2);
 
         double radian = 0.0;
@@ -222,10 +222,10 @@ class SketchPainter extends CustomPainter {
             Offset(radius * math.cos(radian), radius * math.sin(radian));
 
         polygonPath.moveTo(
-            startPoint.dx + pointsCenter.dx, startPoint.dy + pointsCenter.dy);
+            startPoint.dx + centerPoint.dx, startPoint.dy + centerPoint.dy);
         for (int i = 1; i <= sides; i++) {
-          double x = radius * math.cos(radian + angle * i) + pointsCenter.dx;
-          double y = radius * math.sin(radian + angle * i) + pointsCenter.dy;
+          double x = radius * math.cos(radian + angle * i) + centerPoint.dx;
+          double y = radius * math.sin(radian + angle * i) + centerPoint.dy;
           polygonPath.lineTo(x, y);
         }
         polygonPath.close();

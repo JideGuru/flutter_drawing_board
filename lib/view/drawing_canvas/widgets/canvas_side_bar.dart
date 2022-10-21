@@ -16,7 +16,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:url_launcher/url_launcher.dart';
 
-class CanvasSideBar extends StatefulHookWidget {
+class CanvasSideBar extends HookWidget {
   final ValueNotifier<Color> selectedColor;
   final ValueNotifier<double> strokeSize;
   final ValueNotifier<double> eraserSize;
@@ -41,23 +41,11 @@ class CanvasSideBar extends StatefulHookWidget {
   }) : super(key: key);
 
   @override
-  State<CanvasSideBar> createState() => _CanvasSideBarState();
-}
-
-class _CanvasSideBarState extends State<CanvasSideBar> {
-  late final _undoRedoStack = _UndoRedoStack(
-    sketchesNotifier: widget.allSketches,
-    currentSketchNotifier: widget.currentSketch,
-  );
-
-  @override
-  void dispose() {
-    _undoRedoStack.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final undoRedoStack = useState(_UndoRedoStack(
+      sketchesNotifier: allSketches,
+      currentSketchNotifier: currentSketch,
+    ));
     final scrollController = useScrollController();
     return Container(
       width: 300,
@@ -94,19 +82,19 @@ class _CanvasSideBarState extends State<CanvasSideBar> {
               children: [
                 _IconBox(
                   iconData: FontAwesomeIcons.pencil,
-                  selected: widget.drawingMode.value == DrawingMode.pencil,
-                  onTap: () => widget.drawingMode.value = DrawingMode.pencil,
+                  selected: drawingMode.value == DrawingMode.pencil,
+                  onTap: () => drawingMode.value = DrawingMode.pencil,
                 ),
                 _IconBox(
-                  selected: widget.drawingMode.value == DrawingMode.line,
-                  onTap: () => widget.drawingMode.value = DrawingMode.line,
+                  selected: drawingMode.value == DrawingMode.line,
+                  onTap: () => drawingMode.value = DrawingMode.line,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
                         width: 22,
                         height: 2,
-                        color: widget.drawingMode.value == DrawingMode.line
+                        color: drawingMode.value == DrawingMode.line
                             ? Colors.grey[900]
                             : Colors.grey,
                       ),
@@ -115,23 +103,23 @@ class _CanvasSideBarState extends State<CanvasSideBar> {
                 ),
                 _IconBox(
                   iconData: Icons.hexagon_outlined,
-                  selected: widget.drawingMode.value == DrawingMode.polygon,
-                  onTap: () => widget.drawingMode.value = DrawingMode.polygon,
+                  selected: drawingMode.value == DrawingMode.polygon,
+                  onTap: () => drawingMode.value = DrawingMode.polygon,
                 ),
                 _IconBox(
                   iconData: FontAwesomeIcons.eraser,
-                  selected: widget.drawingMode.value == DrawingMode.eraser,
-                  onTap: () => widget.drawingMode.value = DrawingMode.eraser,
+                  selected: drawingMode.value == DrawingMode.eraser,
+                  onTap: () => drawingMode.value = DrawingMode.eraser,
                 ),
                 _IconBox(
                   iconData: FontAwesomeIcons.square,
-                  selected: widget.drawingMode.value == DrawingMode.square,
-                  onTap: () => widget.drawingMode.value = DrawingMode.square,
+                  selected: drawingMode.value == DrawingMode.square,
+                  onTap: () => drawingMode.value = DrawingMode.square,
                 ),
                 _IconBox(
                   iconData: FontAwesomeIcons.circle,
-                  selected: widget.drawingMode.value == DrawingMode.circle,
-                  onTap: () => widget.drawingMode.value = DrawingMode.circle,
+                  selected: drawingMode.value == DrawingMode.circle,
+                  onTap: () => drawingMode.value = DrawingMode.circle,
                 ),
               ],
             ),
@@ -143,9 +131,9 @@ class _CanvasSideBarState extends State<CanvasSideBar> {
                   style: TextStyle(fontSize: 12),
                 ),
                 Checkbox(
-                  value: widget.filled.value,
+                  value: filled.value,
                   onChanged: (val) {
-                    widget.filled.value = val ?? false;
+                    filled.value = val ?? false;
                   },
                 ),
               ],
@@ -153,7 +141,7 @@ class _CanvasSideBarState extends State<CanvasSideBar> {
 
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
-              child: widget.drawingMode.value == DrawingMode.polygon
+              child: drawingMode.value == DrawingMode.polygon
                   ? Row(
                       children: [
                         const Text(
@@ -161,13 +149,13 @@ class _CanvasSideBarState extends State<CanvasSideBar> {
                           style: TextStyle(fontSize: 12),
                         ),
                         Slider(
-                          value: widget.polygonSides.value.toDouble(),
+                          value: polygonSides.value.toDouble(),
                           min: 3,
                           max: 8,
                           onChanged: (val) {
-                            widget.polygonSides.value = val.toInt();
+                            polygonSides.value = val.toInt();
                           },
-                          label: '${widget.polygonSides.value}',
+                          label: '${polygonSides.value}',
                           divisions: 5,
                         ),
                       ],
@@ -181,7 +169,7 @@ class _CanvasSideBarState extends State<CanvasSideBar> {
             ),
             const Divider(),
             ColorPalette(
-              selectedColor: widget.selectedColor,
+              selectedColor: selectedColor,
             ),
             const SizedBox(height: 20),
             const Text(
@@ -196,11 +184,11 @@ class _CanvasSideBarState extends State<CanvasSideBar> {
                   style: TextStyle(fontSize: 12),
                 ),
                 Slider(
-                  value: widget.strokeSize.value,
+                  value: strokeSize.value,
                   min: 0,
                   max: 50,
                   onChanged: (val) {
-                    widget.strokeSize.value = val;
+                    strokeSize.value = val;
                   },
                 ),
               ],
@@ -212,11 +200,11 @@ class _CanvasSideBarState extends State<CanvasSideBar> {
                   style: TextStyle(fontSize: 12),
                 ),
                 Slider(
-                  value: widget.eraserSize.value,
+                  value: eraserSize.value,
                   min: 0,
                   max: 80,
                   onChanged: (val) {
-                    widget.eraserSize.value = val;
+                    eraserSize.value = val;
                   },
                 ),
               ],
@@ -230,30 +218,24 @@ class _CanvasSideBarState extends State<CanvasSideBar> {
             Wrap(
               children: [
                 TextButton(
-                  onPressed: widget.allSketches.value.isNotEmpty
-                      ? () {
-                          _undoRedoStack.undo();
-                        }
+                  onPressed: allSketches.value.isNotEmpty
+                      ? () => undoRedoStack.value.undo()
                       : null,
                   child: const Text('Undo'),
                 ),
                 ValueListenableBuilder<bool>(
-                    valueListenable: _undoRedoStack._canRedo,
-                    builder: (_, canRedo, __) {
-                      return TextButton(
-                        onPressed: canRedo
-                            ? () {
-                                _undoRedoStack.redo();
-                              }
-                            : null,
-                        child: const Text('Redo'),
-                      );
-                    }),
+                  valueListenable: undoRedoStack.value._canRedo,
+                  builder: (_, canRedo, __) {
+                    return TextButton(
+                      onPressed:
+                          canRedo ? () => undoRedoStack.value.redo() : null,
+                      child: const Text('Redo'),
+                    );
+                  },
+                ),
                 TextButton(
                   child: const Text('Clear'),
-                  onPressed: () {
-                    _undoRedoStack.clear();
-                  },
+                  onPressed: () => undoRedoStack.value.clear(),
                 ),
                 TextButton(
                   child: const Text('Fork on Github'),
@@ -340,7 +322,7 @@ class _CanvasSideBarState extends State<CanvasSideBar> {
   }
 
   Future<Uint8List?> getBytes() async {
-    RenderRepaintBoundary boundary = widget.canvasGlobalKey.currentContext
+    RenderRepaintBoundary boundary = canvasGlobalKey.currentContext
         ?.findRenderObject() as RenderRepaintBoundary;
     ui.Image image = await boundary.toImage();
     ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
