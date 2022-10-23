@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
-
 import 'package:file_picker/file_picker.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/foundation.dart';
@@ -9,6 +8,7 @@ import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_drawing_board/main.dart';
+import 'package:flutter_drawing_board/view/constants.dart';
 import 'package:flutter_drawing_board/view/drawing_canvas/models/drawing_mode.dart';
 import 'package:flutter_drawing_board/view/drawing_canvas/models/sketch.dart';
 import 'package:flutter_drawing_board/view/drawing_canvas/widgets/color_palette.dart';
@@ -29,6 +29,11 @@ class CanvasSideBar extends HookWidget {
   final ValueNotifier<bool> filled;
   final ValueNotifier<int> polygonSides;
   final ValueNotifier<ui.Image?> backgroundImage;
+  final ValueNotifier<double> canvasWidth;
+  final ValueNotifier<double> canvasHeight;
+  final ValueNotifier<Offset?> maxOffset;
+  final double defaultCanvasWidth;
+  final double defaultCanvasHeight;
 
   const CanvasSideBar({
     Key? key,
@@ -42,6 +47,11 @@ class CanvasSideBar extends HookWidget {
     required this.filled,
     required this.polygonSides,
     required this.backgroundImage,
+    required this.canvasWidth,
+    required this.canvasHeight,
+    required this.maxOffset,
+    required this.defaultCanvasWidth,
+    required this.defaultCanvasHeight,
   }) : super(key: key);
 
   @override
@@ -226,12 +236,16 @@ class CanvasSideBar extends HookWidget {
             const Divider(),
             Wrap(
               children: [
-                TextButton(
-                  onPressed: allSketches.value.isNotEmpty
-                      ? () => undoRedoStack.value.undo()
-                      : null,
-                  child: const Text('Undo'),
-                ),
+                ValueListenableBuilder<List<Sketch>>(
+                    valueListenable: allSketches,
+                    builder: (_, sketches, __) {
+                      return TextButton(
+                        onPressed: sketches.isNotEmpty
+                            ? () => undoRedoStack.value.undo()
+                            : null,
+                        child: const Text('Undo'),
+                      );
+                    }),
                 ValueListenableBuilder<bool>(
                   valueListenable: undoRedoStack.value._canRedo,
                   builder: (_, canRedo, __) {
@@ -377,12 +391,54 @@ class CanvasSideBar extends HookWidget {
     }
   }
 
+  ///Shaves off uneccessary whitespace by shrinking the size
+  ///of the canvas temporarily to a size that is large enough to
+  ///contain all sketches while being as small as possible.
+  ///
+  ///This is necessary due to the multi-page support.
+  ///It's important to call [_restoreCanvasSize] after the image export is complete.
+  Future<void> _shrinkCanvasSize() async {
+    if (maxOffset.value == null) return;
+    double maxOffsetX = maxOffset.value!.dx;
+    double maxOffsetY = maxOffset.value!.dy;
+
+    final widthPerPage = defaultCanvasWidth / kDefaultPageCount;
+    final heightPerPage = defaultCanvasHeight / kDefaultPageCount;
+
+    if (maxOffsetX < widthPerPage) {
+      canvasWidth.value = widthPerPage;
+    }
+    if (maxOffsetY < heightPerPage) {
+      canvasHeight.value = heightPerPage;
+    }
+
+    if (maxOffsetX > widthPerPage) {
+      int xPages = (maxOffsetX / widthPerPage).ceil();
+      canvasWidth.value = widthPerPage * xPages;
+    }
+    if (maxOffsetY > heightPerPage) {
+      int yPages = (maxOffsetY / heightPerPage).ceil();
+      canvasHeight.value = heightPerPage * yPages;
+    }
+
+    //delay to allow the UI rebuild with new canvas dimensions
+    await Future.delayed(const Duration(seconds: 1));
+  }
+
+  ///Restores canvas size to default dimensions.
+  void _restoreCanvasSize() {
+    canvasHeight.value = defaultCanvasHeight;
+    canvasWidth.value = defaultCanvasWidth;
+  }
+
   Future<Uint8List?> getBytes() async {
+    await _shrinkCanvasSize();
     RenderRepaintBoundary boundary = canvasGlobalKey.currentContext
         ?.findRenderObject() as RenderRepaintBoundary;
     ui.Image image = await boundary.toImage();
     ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     Uint8List? pngBytes = byteData?.buffer.asUint8List();
+    _restoreCanvasSize();
     return pngBytes;
   }
 }
