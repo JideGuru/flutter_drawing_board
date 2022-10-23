@@ -1,6 +1,7 @@
 import 'dart:math' as math;
+import 'dart:ui';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Image;
 import 'package:flutter_drawing_board/main.dart';
 import 'package:flutter_drawing_board/view/drawing_canvas/models/drawing_mode.dart';
 import 'package:flutter_drawing_board/view/drawing_canvas/models/sketch.dart';
@@ -11,6 +12,7 @@ class DrawingCanvas extends HookWidget {
   final double width;
   final ValueNotifier<Color> selectedColor;
   final ValueNotifier<double> strokeSize;
+  final ValueNotifier<Image?> backgroundImage;
   final ValueNotifier<double> eraserSize;
   final ValueNotifier<DrawingMode> drawingMode;
   final AnimationController sideBarController;
@@ -34,6 +36,7 @@ class DrawingCanvas extends HookWidget {
     required this.canvasGlobalKey,
     required this.filled,
     required this.polygonSides,
+    required this.backgroundImage,
   }) : super(key: key);
 
   @override
@@ -107,6 +110,7 @@ class DrawingCanvas extends HookWidget {
               child: CustomPaint(
                 painter: SketchPainter(
                   sketches: sketches,
+                  backgroundImage: backgroundImage.value,
                 ),
               ),
             ),
@@ -143,11 +147,25 @@ class DrawingCanvas extends HookWidget {
 
 class SketchPainter extends CustomPainter {
   final List<Sketch> sketches;
+  final Image? backgroundImage;
 
-  const SketchPainter({Key? key, required this.sketches});
+  const SketchPainter({
+    Key? key,
+    this.backgroundImage,
+    required this.sketches,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (backgroundImage != null) {
+      canvas.drawImageRect(
+        backgroundImage!,
+        Rect.fromLTWH(0, 0, backgroundImage!.width.toDouble(),
+            backgroundImage!.height.toDouble()),
+        Rect.fromLTWH(0, 0, size.width, size.height),
+        Paint(),
+      );
+    }
     for (Sketch sketch in sketches) {
       final points = sketch.points;
       if (points.isEmpty) return;

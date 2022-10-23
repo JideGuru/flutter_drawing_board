@@ -1,10 +1,12 @@
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' show AnchorElement;
+import 'dart:async';
+import 'dart:developer';
+import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:file_picker/file_picker.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_drawing_board/main.dart';
@@ -13,6 +15,7 @@ import 'package:flutter_drawing_board/view/drawing_canvas/models/sketch.dart';
 import 'package:flutter_drawing_board/view/drawing_canvas/widgets/color_palette.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -26,6 +29,7 @@ class CanvasSideBar extends HookWidget {
   final GlobalKey canvasGlobalKey;
   final ValueNotifier<bool> filled;
   final ValueNotifier<int> polygonSides;
+  final ValueNotifier<ui.Image?> backgroundImage;
 
   const CanvasSideBar({
     Key? key,
@@ -38,6 +42,7 @@ class CanvasSideBar extends HookWidget {
     required this.canvasGlobalKey,
     required this.filled,
     required this.polygonSides,
+    required this.backgroundImage,
   }) : super(key: key);
 
   @override
@@ -238,6 +243,20 @@ class CanvasSideBar extends HookWidget {
                   onPressed: () => undoRedoStack.value.clear(),
                 ),
                 TextButton(
+                  onPressed: () async {
+                    if (backgroundImage.value != null) {
+                      backgroundImage.value = null;
+                    } else {
+                      backgroundImage.value = await _getImage;
+                    }
+                  },
+                  child: Text(
+                    backgroundImage.value == null
+                        ? 'Add Background'
+                        : 'Remove Background',
+                  ),
+                ),
+                TextButton(
                   child: const Text('Fork on Github'),
                   onPressed: () => _launchUrl(kGithubRepo),
                 ),
@@ -292,7 +311,7 @@ class CanvasSideBar extends HookWidget {
 
   void saveFile(Uint8List bytes, String extension) async {
     if (kIsWeb) {
-      AnchorElement()
+      html.AnchorElement()
         ..href = '${Uri.dataFromBytes(bytes, mimeType: 'image/$extension')}'
         ..download =
             'FlutterLetsDraw-${DateTime.now().toIso8601String()}.$extension'
@@ -306,6 +325,40 @@ class CanvasSideBar extends HookWidget {
         mimeType: extension == 'png' ? MimeType.PNG : MimeType.JPEG,
       );
     }
+  }
+
+  Future<ui.Image> get _getImage async {
+    final completer = Completer<ui.Image>();
+    if (!kIsWeb && !Platform.isAndroid && !Platform.isIOS) {
+      final file = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: false,
+      );
+      if (file != null) {
+        final filePath = file.files.single.path;
+        final bytes = filePath == null
+            ? file.files.first.bytes
+            : File(filePath).readAsBytesSync();
+        if (bytes != null) {
+          completer.complete(decodeImageFromList(bytes));
+        } else {
+          completer.completeError('No image selected');
+        }
+      }
+    } else {
+      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        final bytes = await image.readAsBytes();
+        log('bytes: ${await decodeImageFromList(bytes)}');
+        completer.complete(
+          decodeImageFromList(bytes),
+        );
+      } else {
+        completer.completeError('No image selected');
+      }
+    }
+
+    return completer.future;
   }
 
   Future<void> _launchUrl(String url) async {
