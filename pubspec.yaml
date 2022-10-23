@@ -39,6 +39,8 @@ dependencies:
   font_awesome_flutter: ^10.2.1
   url_launcher: ^6.1.6
   universal_html: ^2.0.8
+  image_picker: ^0.8.6
+  file_picker: ^5.2.2
 
 dev_dependencies:
   flutter_test:
