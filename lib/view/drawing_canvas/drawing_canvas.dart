@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 import 'dart:ui';
-
 import 'package:flutter/material.dart' hide Image;
 import 'package:flutter_drawing_board/main.dart';
 import 'package:flutter_drawing_board/view/drawing_canvas/models/drawing_mode.dart';
@@ -50,6 +49,7 @@ class DrawingCanvas extends HookWidget {
   }
 
   void onPointerDown(PointerDownEvent details, BuildContext context) {
+    if (drawingMode.value == DrawingMode.none) return;
     final box = context.findRenderObject() as RenderBox;
     final offset = box.globalToLocal(details.position);
     currentSketch.value = Sketch.fromDrawingMode(
@@ -69,6 +69,7 @@ class DrawingCanvas extends HookWidget {
   }
 
   void onPointerMove(PointerMoveEvent details, BuildContext context) {
+    if (drawingMode.value == DrawingMode.none) return;
     final box = context.findRenderObject() as RenderBox;
     final offset = box.globalToLocal(details.position);
     final points = List<Offset>.from(currentSketch.value?.points ?? [])
@@ -90,6 +91,7 @@ class DrawingCanvas extends HookWidget {
   }
 
   void onPointerUp(PointerUpEvent details) {
+    if (drawingMode.value == DrawingMode.none) return;
     allSketches.value = List<Sketch>.from(allSketches.value)
       ..add(currentSketch.value!);
   }

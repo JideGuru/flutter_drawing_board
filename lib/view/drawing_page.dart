@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart' hide Image;
 import 'package:flutter_drawing_board/main.dart';
 import 'package:flutter_drawing_board/view/drawing_canvas/drawing_canvas.dart';
@@ -33,26 +32,35 @@ class DrawingPage extends HookWidget {
     return Scaffold(
       body: Stack(
         children: [
-          Container(
-            color: kCanvasColor,
-            width: double.maxFinite,
-            height: double.maxFinite,
-            child: DrawingCanvas(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              drawingMode: drawingMode,
-              selectedColor: selectedColor,
-              strokeSize: strokeSize,
-              eraserSize: eraserSize,
-              sideBarController: animationController,
-              currentSketch: currentSketch,
-              allSketches: allSketches,
-              canvasGlobalKey: canvasGlobalKey,
-              filled: filled,
-              polygonSides: polygonSides,
-              backgroundImage: backgroundImage,
-            ),
-          ),
+          ValueListenableBuilder<DrawingMode>(
+              valueListenable: drawingMode,
+              builder: (_, mode, __) {
+                return MouseRegion(
+                  cursor: mode != DrawingMode.none
+                      ? SystemMouseCursors.precise
+                      : SystemMouseCursors.basic,
+                  child: Container(
+                    color: kCanvasColor,
+                    width: double.maxFinite,
+                    height: double.maxFinite,
+                    child: DrawingCanvas(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      drawingMode: drawingMode,
+                      selectedColor: selectedColor,
+                      strokeSize: strokeSize,
+                      eraserSize: eraserSize,
+                      sideBarController: animationController,
+                      currentSketch: currentSketch,
+                      allSketches: allSketches,
+                      canvasGlobalKey: canvasGlobalKey,
+                      filled: filled,
+                      polygonSides: polygonSides,
+                      backgroundImage: backgroundImage,
+                    ),
+                  ),
+                );
+              }),
           Positioned(
             top: kToolbarHeight + 10,
             // left: -5,
