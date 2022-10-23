@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'dart:ui';
+
+import 'package:flutter/material.dart' hide Image;
 import 'package:flutter_drawing_board/main.dart';
 import 'package:flutter_drawing_board/view/drawing_canvas/drawing_canvas.dart';
 import 'package:flutter_drawing_board/view/drawing_canvas/models/drawing_mode.dart';
@@ -17,6 +19,7 @@ class DrawingPage extends HookWidget {
     final drawingMode = useState(DrawingMode.pencil);
     final filled = useState<bool>(false);
     final polygonSides = useState<int>(3);
+    final backgroundImage = useState<Image?>(null);
 
     final canvasGlobalKey = GlobalKey();
 
@@ -47,6 +50,7 @@ class DrawingPage extends HookWidget {
               canvasGlobalKey: canvasGlobalKey,
               filled: filled,
               polygonSides: polygonSides,
+              backgroundImage: backgroundImage,
             ),
           ),
           Positioned(
@@ -67,6 +71,7 @@ class DrawingPage extends HookWidget {
                 canvasGlobalKey: canvasGlobalKey,
                 filled: filled,
                 polygonSides: polygonSides,
+                backgroundImage: backgroundImage,
               ),
             ),
           ),
