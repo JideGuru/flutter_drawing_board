@@ -419,10 +419,10 @@ class _IconBox extends StatelessWidget {
           ),
           borderRadius: const BorderRadius.all(Radius.circular(5)),
         ),
-        child: IconButton(
-          onPressed: onTap,
-          tooltip: tooltip,
-          icon: child ??
+        child: Tooltip(
+          message: tooltip,
+          preferBelow: false,
+          child: child ??
               Icon(
                 iconData,
                 color: selected ? Colors.grey[900] : Colors.grey,
