@@ -1,5 +1,3 @@
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' show AnchorElement;
 import 'dart:ui' as ui;
 
 import 'package:file_saver/file_saver.dart';
@@ -292,7 +290,7 @@ class CanvasSideBar extends HookWidget {
 
   void saveFile(Uint8List bytes, String extension) async {
     if (kIsWeb) {
-      AnchorElement()
+      html.AnchorElement()
         ..href = '${Uri.dataFromBytes(bytes, mimeType: 'image/$extension')}'
         ..download =
             'FlutterLetsDraw-${DateTime.now().toIso8601String()}.$extension'
