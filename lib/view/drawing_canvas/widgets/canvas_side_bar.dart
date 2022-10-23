@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:ui' as ui;
-import 'dart:ui';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:file_saver/file_saver.dart';
@@ -29,7 +29,7 @@ class CanvasSideBar extends HookWidget {
   final GlobalKey canvasGlobalKey;
   final ValueNotifier<bool> filled;
   final ValueNotifier<int> polygonSides;
-  final ValueNotifier<Image?> backgroundImage;
+  final ValueNotifier<ui.Image?> backgroundImage;
 
   const CanvasSideBar({
     Key? key,
@@ -242,22 +242,19 @@ class CanvasSideBar extends HookWidget {
                   child: const Text('Clear'),
                   onPressed: () => undoRedoStack.value.clear(),
                 ),
-                ValueListenableBuilder<Image?>(
-                  valueListenable: backgroundImage,
-                  builder: (_, image, __) {
-                    return TextButton(
-                      onPressed: () async {
-                        if (image != null) {
-                          backgroundImage.value = null;
-                        } else {
-                          backgroundImage.value = await _getImage;
-                        }
-                      },
-                      child: Text(
-                        image == null ? 'Add Background' : 'Remove Background',
-                      ),
-                    );
+                TextButton(
+                  onPressed: () async {
+                    if (backgroundImage.value != null) {
+                      backgroundImage.value = null;
+                    } else {
+                      backgroundImage.value = await _getImage;
+                    }
                   },
+                  child: Text(
+                    backgroundImage.value == null
+                        ? 'Add Background'
+                        : 'Remove Background',
+                  ),
                 ),
                 TextButton(
                   child: const Text('Fork on Github'),
@@ -330,8 +327,8 @@ class CanvasSideBar extends HookWidget {
     }
   }
 
-  Future<Image> get _getImage async {
-    final completer = Completer<Image>();
+  Future<ui.Image> get _getImage async {
+    final completer = Completer<ui.Image>();
     if (!kIsWeb && !Platform.isAndroid && !Platform.isIOS) {
       final file = await FilePicker.platform.pickFiles(
         type: FileType.image,
@@ -352,6 +349,7 @@ class CanvasSideBar extends HookWidget {
       final image = await ImagePicker().pickImage(source: ImageSource.gallery);
       if (image != null) {
         final bytes = await image.readAsBytes();
+        log('bytes: ${await decodeImageFromList(bytes)}');
         completer.complete(
           decodeImageFromList(bytes),
         );
