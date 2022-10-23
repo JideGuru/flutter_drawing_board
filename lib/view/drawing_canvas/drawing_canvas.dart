@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart' hide Image;
 import 'package:flutter_drawing_board/main.dart';
+import 'package:flutter_drawing_board/view/constants.dart';
 import 'package:flutter_drawing_board/view/drawing_canvas/models/drawing_mode.dart';
 import 'package:flutter_drawing_board/view/drawing_canvas/models/sketch.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -20,6 +21,8 @@ class DrawingCanvas extends HookWidget {
   final GlobalKey canvasGlobalKey;
   final ValueNotifier<int> polygonSides;
   final ValueNotifier<bool> filled;
+  final ValueNotifier<int> imageRowCount;
+  final ValueNotifier<int> imageColumnCount;
 
   const DrawingCanvas({
     Key? key,
@@ -36,6 +39,8 @@ class DrawingCanvas extends HookWidget {
     required this.filled,
     required this.polygonSides,
     required this.backgroundImage,
+    required this.imageRowCount,
+    required this.imageColumnCount,
   }) : super(key: key);
 
   @override
@@ -103,20 +108,30 @@ class DrawingCanvas extends HookWidget {
       child: ValueListenableBuilder<List<Sketch>>(
         valueListenable: allSketches,
         builder: (context, sketches, _) {
-          return RepaintBoundary(
-            key: canvasGlobalKey,
-            child: Container(
-              height: height,
-              width: width,
-              color: kCanvasColor,
-              child: CustomPaint(
-                painter: SketchPainter(
-                  sketches: sketches,
-                  backgroundImage: backgroundImage.value,
-                ),
-              ),
-            ),
-          );
+          return ValueListenableBuilder<int>(
+              valueListenable: imageColumnCount,
+              builder: (_, imageColumnCount, __) {
+                return ValueListenableBuilder<int>(
+                    valueListenable: imageRowCount,
+                    builder: (_, imageRowCount, __) {
+                      return RepaintBoundary(
+                        key: canvasGlobalKey,
+                        child: Container(
+                          height: height,
+                          width: width,
+                          color: kCanvasColor,
+                          child: CustomPaint(
+                            painter: SketchPainter(
+                              sketches: sketches,
+                              backgroundImage: backgroundImage.value,
+                              imageRowCount: imageRowCount,
+                              imageColumnCount: imageColumnCount,
+                            ),
+                          ),
+                        ),
+                      );
+                    });
+              });
         },
       ),
     );
@@ -150,23 +165,37 @@ class DrawingCanvas extends HookWidget {
 class SketchPainter extends CustomPainter {
   final List<Sketch> sketches;
   final Image? backgroundImage;
+  final int imageRowCount;
+  final int imageColumnCount;
 
   const SketchPainter({
     Key? key,
     this.backgroundImage,
+    this.imageRowCount = kDefaultPageCount,
+    this.imageColumnCount = kDefaultPageCount,
     required this.sketches,
   });
+
+  void _drawImages(Canvas canvas, Size size) {
+    final paint = Paint();
+    double imageWidth = size.width / imageRowCount;
+    double imageHeight = size.height / imageColumnCount;
+
+    for (int i = 1; i <= imageRowCount; i++) {
+      double dx = (imageWidth * i) - imageWidth;
+
+      for (int j = 1; j <= imageColumnCount; j++) {
+        double dy = (imageHeight * j) - imageHeight;
+
+        canvas.drawImage(backgroundImage!, Offset(dx, dy), paint);
+      }
+    }
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
     if (backgroundImage != null) {
-      canvas.drawImageRect(
-        backgroundImage!,
-        Rect.fromLTWH(0, 0, backgroundImage!.width.toDouble(),
-            backgroundImage!.height.toDouble()),
-        Rect.fromLTWH(0, 0, size.width, size.height),
-        Paint(),
-      );
+      _drawImages(canvas, size);
     }
     for (Sketch sketch in sketches) {
       final points = sketch.points;
@@ -259,6 +288,7 @@ class SketchPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant SketchPainter oldDelegate) {
-    return oldDelegate.sketches != sketches;
+    return oldDelegate.sketches != sketches ||
+        oldDelegate.backgroundImage != backgroundImage;
   }
 }

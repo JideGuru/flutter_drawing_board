@@ -18,6 +18,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:image/image.dart' as im;
 
 class CanvasSideBar extends HookWidget {
   final ValueNotifier<Color> selectedColor;
@@ -33,6 +34,8 @@ class CanvasSideBar extends HookWidget {
   final ValueNotifier<double> canvasWidth;
   final ValueNotifier<double> canvasHeight;
   final ValueNotifier<Offset?> maxOffset;
+  final ValueNotifier<int> imageRowCount;
+  final ValueNotifier<int> imageColumnCount;
   final double defaultCanvasWidth;
   final double defaultCanvasHeight;
   final UndoRedoStack undoRedoStack;
@@ -52,6 +55,8 @@ class CanvasSideBar extends HookWidget {
     required this.canvasWidth,
     required this.canvasHeight,
     required this.maxOffset,
+    required this.imageRowCount,
+    required this.imageColumnCount,
     required this.defaultCanvasWidth,
     required this.defaultCanvasHeight,
     required this.undoRedoStack,
@@ -345,6 +350,31 @@ class CanvasSideBar extends HookWidget {
 
   Future<ui.Image> get _getImage async {
     final completer = Completer<ui.Image>();
+
+    final bytes = await _getImageBytes;
+    if (bytes == null) {
+      completer.completeError('No image selected');
+    }
+    im.Image? baseSizeImage = im.decodeImage(bytes!);
+
+    if (baseSizeImage == null) {
+      completer.completeError('Error decoding image');
+    }
+
+    final width = (defaultCanvasWidth / kDefaultPageCount).ceil();
+
+    im.Image resizeImage = im.copyResize(baseSizeImage!, width: width);
+    ui.Codec codec = await ui
+        .instantiateImageCodec(Uint8List.fromList(im.encodePng(resizeImage)));
+    ui.FrameInfo frameInfo = await codec.getNextFrame();
+
+    completer.complete(frameInfo.image);
+
+    return completer.future;
+  }
+
+  Future<Uint8List?> get _getImageBytes async {
+    final completer = Completer<Uint8List>();
     if (!kIsWeb && !Platform.isAndroid && !Platform.isIOS) {
       final file = await FilePicker.platform.pickFiles(
         type: FileType.image,
@@ -356,7 +386,7 @@ class CanvasSideBar extends HookWidget {
             ? file.files.first.bytes
             : File(filePath).readAsBytesSync();
         if (bytes != null) {
-          completer.complete(decodeImageFromList(bytes));
+          completer.complete(bytes);
         } else {
           completer.completeError('No image selected');
         }
@@ -365,9 +395,7 @@ class CanvasSideBar extends HookWidget {
       final image = await ImagePicker().pickImage(source: ImageSource.gallery);
       if (image != null) {
         final bytes = await image.readAsBytes();
-        completer.complete(
-          decodeImageFromList(bytes),
-        );
+        completer.complete(bytes);
       } else {
         completer.completeError('No image selected');
       }
@@ -404,18 +432,22 @@ class CanvasSideBar extends HookWidget {
     final heightPerPage = defaultCanvasHeight / kDefaultPageCount;
 
     if (maxOffsetX < widthPerPage) {
+      imageRowCount.value = 1;
       canvasWidth.value = widthPerPage;
     }
     if (maxOffsetY < heightPerPage) {
+      imageColumnCount.value = 1;
       canvasHeight.value = heightPerPage;
     }
 
     if (maxOffsetX > widthPerPage) {
       int xPages = (maxOffsetX / widthPerPage).ceil();
+      imageRowCount.value = xPages;
       canvasWidth.value = widthPerPage * xPages;
     }
     if (maxOffsetY > heightPerPage) {
       int yPages = (maxOffsetY / heightPerPage).ceil();
+      imageColumnCount.value = yPages;
       canvasHeight.value = heightPerPage * yPages;
     }
 
@@ -427,6 +459,8 @@ class CanvasSideBar extends HookWidget {
   void _restoreCanvasSize() {
     canvasHeight.value = defaultCanvasHeight;
     canvasWidth.value = defaultCanvasWidth;
+    imageColumnCount.value = kDefaultPageCount;
+    imageRowCount.value = kDefaultPageCount;
   }
 
   Future<Uint8List?> getBytes() async {

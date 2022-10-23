@@ -183,12 +183,7 @@ class _DrawingPageState extends State<DrawingPage> {
   ///Scrolls to initial coordinates for InteractiveViewer.
   void _scrollToOrigin() {
     _canGoBackToContent.value = false;
-    _controller.value = Matrix4.columns(
-      Vector4(1, 0, 0, 0),
-      Vector4(0, 1, 0, 0),
-      Vector4(0, 0, 1, 0),
-      Vector4(0, 0, 0, 1),
-    );
+    _controller.value = Matrix4.identity();
   }
 
   @override
@@ -214,6 +209,8 @@ class _DrawingPageState extends State<DrawingPage> {
     final strokeSize = useState<double>(10);
     final eraserSize = useState<double>(30);
     final drawingMode = useState(DrawingMode.pencil);
+    final imageRowCount = useState(kDefaultPageCount);
+    final imageColumnCount = useState(kDefaultPageCount);
     final filled = useState<bool>(false);
     final polygonSides = useState<int>(3);
     final backgroundImage = useState<Image?>(null);
@@ -264,6 +261,8 @@ class _DrawingPageState extends State<DrawingPage> {
                                     filled: filled,
                                     polygonSides: polygonSides,
                                     backgroundImage: backgroundImage,
+                                    imageRowCount: imageRowCount,
+                                    imageColumnCount: imageColumnCount,
                                   ),
                                 );
                               });
@@ -290,6 +289,8 @@ class _DrawingPageState extends State<DrawingPage> {
                 filled: filled,
                 polygonSides: polygonSides,
                 backgroundImage: backgroundImage,
+                imageRowCount: imageRowCount,
+                imageColumnCount: imageColumnCount,
                 canvasWidth: _canvasWidth,
                 canvasHeight: _canvasHeight,
                 maxOffset: _maxOffsetNotifier,
