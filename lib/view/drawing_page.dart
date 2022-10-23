@@ -38,8 +38,6 @@ class _DrawingPageState extends State<DrawingPage> {
 
   late final _maxOffsetNotifier = ValueNotifier<Offset?>(_maxOffset);
 
-  late final _canvasGlobalKey = GlobalKey();
-
   ///Reactive drawing canvas width.
   ///[_canvasWidth] may be reset briefly to a smaller value
   ///during image export to extract accurate image renders of the drawing.
@@ -66,14 +64,29 @@ class _DrawingPageState extends State<DrawingPage> {
 
   ///Notifier whose value is an approximated offset of where some sketches
   ///are drawn on the canvas.
-  late final _lastContentOffset = ValueNotifier<Offset?>(null);
+  final _lastContentOffset = ValueNotifier<Offset?>(null);
 
   ///Notifier whose value indicates whether "Go back to content" button is visible.
   ///Value is `true` when user pans away from visible sketches, otherwise, it's `false`.
-  late final _canGoBackToContent = ValueNotifier<bool>(false);
+  final _canGoBackToContent = ValueNotifier<bool>(false);
 
-  late final _currentSketch = ValueNotifier<Sketch?>(null);
-  late final _allSketches = ValueNotifier<List<Sketch>>([]);
+  final _currentSketch = ValueNotifier<Sketch?>(null);
+  final _allSketches = ValueNotifier<List<Sketch>>([]);
+  final _canvasGlobalKey = GlobalKey();
+
+  late final _undoRedoStack = UndoRedoStack(
+    sketchesNotifier: _allSketches,
+    currentSketchNotifier: _currentSketch,
+    onClear: () {
+      //reset all pan related state and bring canvas to initial position
+      _minOffset = null;
+      _maxOffset = null;
+      _maxOffsetNotifier.value = null;
+      _canvasHeight.value = _kDefaultHeight;
+      _canvasWidth.value = _kDefaultWidth;
+      _scrollToOrigin();
+    },
+  );
 
   ///Controller attached to InteractiveViewer.
   late final _controller = TransformationController();
@@ -153,8 +166,8 @@ class _DrawingPageState extends State<DrawingPage> {
     }
   }
 
-  ///Pans to an approximated offset where some sketches might be drawn.
-  void _panToAreaWithSketches() {
+  ///Scrolls to an approximated offset where some sketches might be drawn.
+  void _scrollToAreaWithSketches() {
     final offset = _lastContentOffset.value;
     if (offset != null) {
       _canGoBackToContent.value = false;
@@ -167,6 +180,17 @@ class _DrawingPageState extends State<DrawingPage> {
     }
   }
 
+  ///Scrolls to initial coordinates for InteractiveViewer.
+  void _scrollToOrigin() {
+    _canGoBackToContent.value = false;
+    _controller.value = Matrix4.columns(
+      Vector4(1, 0, 0, 0),
+      Vector4(0, 1, 0, 0),
+      Vector4(0, 0, 1, 0),
+      Vector4(0, 0, 0, 1),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -177,6 +201,7 @@ class _DrawingPageState extends State<DrawingPage> {
 
   @override
   void dispose() {
+    _undoRedoStack.dispose();
     _currentSketch.removeListener(_currentSketchListener);
     _allSketches.removeListener(_allSketchesListener);
     _controller.removeListener(_panListener);
@@ -197,6 +222,7 @@ class _DrawingPageState extends State<DrawingPage> {
       duration: const Duration(milliseconds: 150),
       initialValue: 1,
     );
+
     return Scaffold(
       body: Stack(
         children: [
@@ -269,6 +295,7 @@ class _DrawingPageState extends State<DrawingPage> {
                 maxOffset: _maxOffsetNotifier,
                 defaultCanvasWidth: _kDefaultWidth,
                 defaultCanvasHeight: _kDefaultHeight,
+                undoRedoStack: _undoRedoStack,
               ),
             ),
           ),
@@ -286,7 +313,7 @@ class _DrawingPageState extends State<DrawingPage> {
                       foregroundColor: Colors.white,
                       minimumSize: const Size(200, 45),
                     ),
-                    onPressed: _panToAreaWithSketches,
+                    onPressed: _scrollToAreaWithSketches,
                     child: const Text("Scroll back to content"),
                   );
                 }),
@@ -335,5 +362,72 @@ class _CustomAppBar extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+///A data structure for undoing and redoing sketches.
+class UndoRedoStack {
+  UndoRedoStack({
+    required this.sketchesNotifier,
+    required this.currentSketchNotifier,
+    required this.onClear,
+  }) {
+    _sketchCount = sketchesNotifier.value.length;
+    sketchesNotifier.addListener(_sketchesCountListener);
+  }
+
+  final VoidCallback onClear;
+
+  final ValueNotifier<List<Sketch>> sketchesNotifier;
+  final ValueNotifier<Sketch?> currentSketchNotifier;
+
+  ///Collection of sketches that can be redone.
+  late final List<Sketch> _redoStack = [];
+
+  ///Whether redo operation is possible.
+  ValueNotifier<bool> get canRedo => _canRedo;
+  late final ValueNotifier<bool> _canRedo = ValueNotifier(false);
+
+  late int _sketchCount;
+
+  void _sketchesCountListener() {
+    if (sketchesNotifier.value.length > _sketchCount) {
+      //if a new sketch is drawn,
+      //history is invalidated so clear redo stack
+      _redoStack.clear();
+      _canRedo.value = false;
+      _sketchCount = sketchesNotifier.value.length;
+    }
+  }
+
+  void clear() {
+    _sketchCount = 0;
+    sketchesNotifier.value = [];
+    _canRedo.value = false;
+    currentSketchNotifier.value = null;
+    onClear();
+  }
+
+  void undo() {
+    final sketches = List<Sketch>.from(sketchesNotifier.value);
+    if (sketches.isNotEmpty) {
+      _sketchCount--;
+      _redoStack.add(sketches.removeLast());
+      sketchesNotifier.value = sketches;
+      _canRedo.value = true;
+      currentSketchNotifier.value = null;
+    }
+  }
+
+  void redo() {
+    if (_redoStack.isEmpty) return;
+    final sketch = _redoStack.removeLast();
+    _canRedo.value = _redoStack.isNotEmpty;
+    _sketchCount++;
+    sketchesNotifier.value = [...sketchesNotifier.value, sketch];
+  }
+
+  void dispose() {
+    sketchesNotifier.removeListener(_sketchesCountListener);
   }
 }
