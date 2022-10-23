@@ -203,15 +203,15 @@ class SketchPainter extends CustomPainter {
         paint.strokeWidth = sketch.size;
       }
 
-      // create rect to use rectangle and circle
-      Rect rect = Rect.fromPoints(
-        Offset(sketch.points.first.dx, sketch.points.first.dy),
-        Offset(sketch.points.last.dx, sketch.points.last.dy),
-      );
-
       // define first and last points for convenience
       Offset firstPoint = sketch.points.first;
       Offset lastPoint = sketch.points.last;
+
+      // create rect to use rectangle and circle
+      Rect rect = Rect.fromPoints(
+        Offset(firstPoint.dx, firstPoint.dy),
+        Offset(lastPoint.dx, lastPoint.dy),
+      );
 
       // Calculate center point from the first and last points
       Offset centerPoint = (firstPoint / 2) + (lastPoint / 2);

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -349,7 +348,6 @@ class CanvasSideBar extends HookWidget {
       final image = await ImagePicker().pickImage(source: ImageSource.gallery);
       if (image != null) {
         final bytes = await image.readAsBytes();
-        log('bytes: ${await decodeImageFromList(bytes)}');
         completer.complete(
           decodeImageFromList(bytes),
         );
