@@ -88,10 +88,12 @@ class CanvasSideBar extends HookWidget {
                   iconData: FontAwesomeIcons.pencil,
                   selected: drawingMode.value == DrawingMode.pencil,
                   onTap: () => drawingMode.value = DrawingMode.pencil,
+                  tooltip: 'Pencil',
                 ),
                 _IconBox(
                   selected: drawingMode.value == DrawingMode.line,
                   onTap: () => drawingMode.value = DrawingMode.line,
+                  tooltip: 'Line',
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -109,21 +111,25 @@ class CanvasSideBar extends HookWidget {
                   iconData: Icons.hexagon_outlined,
                   selected: drawingMode.value == DrawingMode.polygon,
                   onTap: () => drawingMode.value = DrawingMode.polygon,
+                  tooltip: 'Polygon',
                 ),
                 _IconBox(
                   iconData: FontAwesomeIcons.eraser,
                   selected: drawingMode.value == DrawingMode.eraser,
                   onTap: () => drawingMode.value = DrawingMode.eraser,
+                  tooltip: 'Eraser',
                 ),
                 _IconBox(
                   iconData: FontAwesomeIcons.square,
                   selected: drawingMode.value == DrawingMode.square,
                   onTap: () => drawingMode.value = DrawingMode.square,
+                  tooltip: 'Square',
                 ),
                 _IconBox(
                   iconData: FontAwesomeIcons.circle,
                   selected: drawingMode.value == DrawingMode.circle,
                   onTap: () => drawingMode.value = DrawingMode.circle,
+                  tooltip: 'Circle',
                 ),
               ],
             ),
@@ -387,11 +393,13 @@ class _IconBox extends StatelessWidget {
   final Widget? child;
   final bool selected;
   final VoidCallback onTap;
+  final String? tooltip;
 
   const _IconBox({
     Key? key,
     this.iconData,
     this.child,
+    this.tooltip,
     required this.selected,
     required this.onTap,
   })  : assert(child != null || iconData != null),
@@ -411,12 +419,16 @@ class _IconBox extends StatelessWidget {
           ),
           borderRadius: const BorderRadius.all(Radius.circular(5)),
         ),
-        child: child ??
-            Icon(
-              iconData,
-              color: selected ? Colors.grey[900] : Colors.grey,
-              size: 20,
-            ),
+        child: Tooltip(
+          message: tooltip,
+          preferBelow: false,
+          child: child ??
+              Icon(
+                iconData,
+                color: selected ? Colors.grey[900] : Colors.grey,
+                size: 20,
+              ),
+        ),
       ),
     );
   }
