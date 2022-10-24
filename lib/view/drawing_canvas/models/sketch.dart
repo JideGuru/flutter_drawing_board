@@ -43,7 +43,6 @@ class Sketch {
             return SketchType.circle;
           case DrawingMode.polygon:
             return SketchType.polygon;
-
           default:
             return SketchType.scribble;
         }
@@ -77,13 +76,7 @@ class Sketch {
   }
 }
 
-enum SketchType {
-  scribble,
-  line,
-  square,
-  circle,
-  polygon,
-}
+enum SketchType { scribble, line, square, circle, polygon }
 
 extension SketchTypeX on SketchType {
   toRegularString() => toString().split('.')[1];
