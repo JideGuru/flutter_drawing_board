@@ -16,11 +16,17 @@ Try out the DEMO here
 
 ## ✨ Features
 
+#### Available Features
 - [x] Scribble.
 - [x] Draw Shapes (Line, Polygon, Ellipse and Rectangle).
 - [x] Eraser.
 - [x] Undo and Redo
 - [x] Export as Image
+
+#### Features to Explore
+- [ ] Canvas Zoom/Scroll.
+- [ ] Perfect circle option and Polygon rotation.
+- [ ] Move doodle and shapes around the canvas
 
 
 ## 📸 ScreenShots
