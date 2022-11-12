@@ -20,6 +20,7 @@ class DrawingPage extends HookWidget {
     final filled = useState<bool>(false);
     final polygonSides = useState<int>(3);
     final backgroundImage = useState<Image?>(null);
+    final canvasScale = useState<double>(1);
 
     final canvasGlobalKey = GlobalKey();
 
@@ -51,6 +52,7 @@ class DrawingPage extends HookWidget {
               filled: filled,
               polygonSides: polygonSides,
               backgroundImage: backgroundImage,
+              canvasScale: canvasScale,
             ),
           ),
           Positioned(

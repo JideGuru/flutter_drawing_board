@@ -21,6 +21,7 @@ class DrawingCanvas extends HookWidget {
   final GlobalKey canvasGlobalKey;
   final ValueNotifier<int> polygonSides;
   final ValueNotifier<bool> filled;
+  final ValueNotifier<double> canvasScale;
 
   const DrawingCanvas({
     Key? key,
@@ -37,21 +38,32 @@ class DrawingCanvas extends HookWidget {
     required this.filled,
     required this.polygonSides,
     required this.backgroundImage,
+    required this.canvasScale,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        buildAllSketches(context),
-        buildCurrentPath(context),
-      ],
+    return InteractiveViewer(
+      onInteractionUpdate: (details) {
+        if (drawingMode.value != DrawingMode.handTool) return;
+        canvasScale.value = details.scale;
+        print(details.scale);
+        print(details);
+      },
+      panEnabled: drawingMode.value == DrawingMode.handTool,
+      child: Stack(
+        children: [
+          buildAllSketches(context),
+          buildCurrentPath(context),
+        ],
+      ),
     );
   }
 
   void onPointerDown(PointerDownEvent details, BuildContext context) {
+    if (drawingMode.value == DrawingMode.handTool) return;
     final box = context.findRenderObject() as RenderBox;
-    final offset = box.globalToLocal(details.position);
+    final offset = box.globalToLocal(details.position) * canvasScale.value;
     currentSketch.value = Sketch.fromDrawingMode(
       Sketch(
         points: [offset],
@@ -69,8 +81,9 @@ class DrawingCanvas extends HookWidget {
   }
 
   void onPointerMove(PointerMoveEvent details, BuildContext context) {
+    if (drawingMode.value == DrawingMode.handTool) return;
     final box = context.findRenderObject() as RenderBox;
-    final offset = box.globalToLocal(details.position);
+    final offset = box.globalToLocal(details.position) * canvasScale.value;
     final points = List<Offset>.from(currentSketch.value?.points ?? [])
       ..add(offset);
     currentSketch.value = Sketch.fromDrawingMode(
@@ -90,6 +103,7 @@ class DrawingCanvas extends HookWidget {
   }
 
   void onPointerUp(PointerUpEvent details) {
+    if (drawingMode.value == DrawingMode.handTool) return;
     allSketches.value = List<Sketch>.from(allSketches.value)
       ..add(currentSketch.value!);
   }
