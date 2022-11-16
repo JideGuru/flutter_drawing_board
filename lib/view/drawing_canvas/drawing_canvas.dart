@@ -41,11 +41,14 @@ class DrawingCanvas extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        buildAllSketches(context),
-        buildCurrentPath(context),
-      ],
+    return MouseRegion(
+      cursor: SystemMouseCursors.precise,
+      child: Stack(
+        children: [
+          buildAllSketches(context),
+          buildCurrentPath(context),
+        ],
+      ),
     );
   }
 
@@ -208,10 +211,7 @@ class SketchPainter extends CustomPainter {
       Offset lastPoint = sketch.points.last;
 
       // create rect to use rectangle and circle
-      Rect rect = Rect.fromPoints(
-        Offset(firstPoint.dx, firstPoint.dy),
-        Offset(lastPoint.dx, lastPoint.dy),
-      );
+      Rect rect = Rect.fromPoints(firstPoint, lastPoint);
 
       // Calculate center point from the first and last points
       Offset centerPoint = (firstPoint / 2) + (lastPoint / 2);

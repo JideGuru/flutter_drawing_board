@@ -29,19 +29,22 @@ class ColorPalette extends HookWidget {
           runSpacing: 2,
           children: [
             for (Color color in colors)
-              GestureDetector(
-                onTap: () => selectedColor.value = color,
-                child: Container(
-                  height: 25,
-                  width: 25,
-                  decoration: BoxDecoration(
-                    color: color,
-                    border: Border.all(
-                        color: selectedColor.value == color
-                            ? Colors.blue
-                            : Colors.grey,
-                        width: 1.5),
-                    borderRadius: const BorderRadius.all(Radius.circular(5)),
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () => selectedColor.value = color,
+                  child: Container(
+                    height: 25,
+                    width: 25,
+                    decoration: BoxDecoration(
+                      color: color,
+                      border: Border.all(
+                          color: selectedColor.value == color
+                              ? Colors.blue
+                              : Colors.grey,
+                          width: 1.5),
+                      borderRadius: const BorderRadius.all(Radius.circular(5)),
+                    ),
                   ),
                 ),
               ),
@@ -61,14 +64,17 @@ class ColorPalette extends HookWidget {
               ),
             ),
             const SizedBox(width: 10),
-            GestureDetector(
-              onTap: () {
-                showColorWheel(context, selectedColor);
-              },
-              child: SvgPicture.asset(
-                'assets/svgs/color_wheel.svg',
-                height: 30,
-                width: 30,
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () {
+                  showColorWheel(context, selectedColor);
+                },
+                child: SvgPicture.asset(
+                  'assets/svgs/color_wheel.svg',
+                  height: 30,
+                  width: 30,
+                ),
               ),
             ),
           ],
