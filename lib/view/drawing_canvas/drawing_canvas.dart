@@ -93,15 +93,12 @@ class DrawingCanvas extends HookWidget {
     );
   }
 
-  void onPointerUp(PointerUpEvent details, BuildContext context) {
-    final box = context.findRenderObject() as RenderBox;
-    final offset = box.globalToLocal(details.position);
-
+  void onPointerUp(PointerUpEvent details) {
     allSketches.value = List<Sketch>.from(allSketches.value)
       ..add(currentSketch.value!);
     currentSketch.value = Sketch.fromDrawingMode(
       Sketch(
-        points: [offset],
+        points: [],
         size: drawingMode.value == DrawingMode.eraser
             ? eraserSize.value
             : strokeSize.value,
@@ -145,7 +142,7 @@ class DrawingCanvas extends HookWidget {
     return Listener(
       onPointerDown: (details) => onPointerDown(details, context),
       onPointerMove: (details) => onPointerMove(details, context),
-      onPointerUp: (details) => onPointerUp(details, context),
+      onPointerUp: onPointerUp,
       child: ValueListenableBuilder(
         valueListenable: currentSketch,
         builder: (context, sketch, child) {
@@ -238,6 +235,13 @@ class SketchPainter extends CustomPainter {
       double radius = (firstPoint - lastPoint).distance / 2;
 
       if (sketch.type == SketchType.scribble) {
+        Paint paint2 = Paint()
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 15.0)
+          ..color = sketch.color
+          ..strokeCap = StrokeCap.round;
+
+        // canvas.drawPath(path, paint2);
+        canvas.drawPath(path, paint);
         canvas.drawPath(path, paint);
       } else if (sketch.type == SketchType.square) {
         canvas.drawRRect(
