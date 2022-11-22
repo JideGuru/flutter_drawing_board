@@ -76,6 +76,7 @@ class DrawingCanvas extends HookWidget {
     final offset = box.globalToLocal(details.position);
     final points = List<Offset>.from(currentSketch.value?.points ?? [])
       ..add(offset);
+
     currentSketch.value = Sketch.fromDrawingMode(
       Sketch(
         points: points,
@@ -95,6 +96,20 @@ class DrawingCanvas extends HookWidget {
   void onPointerUp(PointerUpEvent details) {
     allSketches.value = List<Sketch>.from(allSketches.value)
       ..add(currentSketch.value!);
+    currentSketch.value = Sketch.fromDrawingMode(
+      Sketch(
+        points: [],
+        size: drawingMode.value == DrawingMode.eraser
+            ? eraserSize.value
+            : strokeSize.value,
+        color: drawingMode.value == DrawingMode.eraser
+            ? kCanvasColor
+            : selectedColor.value,
+        sides: polygonSides.value,
+      ),
+      drawingMode.value,
+      filled.value,
+    );
   }
 
   Widget buildAllSketches(BuildContext context) {
