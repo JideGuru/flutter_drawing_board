@@ -235,13 +235,6 @@ class SketchPainter extends CustomPainter {
       double radius = (firstPoint - lastPoint).distance / 2;
 
       if (sketch.type == SketchType.scribble) {
-        Paint paint2 = Paint()
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 15.0)
-          ..color = sketch.color
-          ..strokeCap = StrokeCap.round;
-
-        // canvas.drawPath(path, paint2);
-        canvas.drawPath(path, paint);
         canvas.drawPath(path, paint);
       } else if (sketch.type == SketchType.square) {
         canvas.drawRRect(
