@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:file_picker/file_picker.dart';
-import 'package:file_saver/file_saver.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/rendering.dart';
@@ -15,6 +14,7 @@ import 'package:flutter_drawing_board/view/drawing_canvas/widgets/color_palette.
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:jsaver/jSaver.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -315,6 +315,8 @@ class CanvasSideBar extends HookWidget {
   }
 
   void saveFile(Uint8List bytes, String extension) async {
+    final _jSaverPlugin = JSaver.instance;
+
     if (kIsWeb) {
       html.AnchorElement()
         ..href = '${Uri.dataFromBytes(bytes, mimeType: 'image/$extension')}'
@@ -323,12 +325,10 @@ class CanvasSideBar extends HookWidget {
         ..style.display = 'none'
         ..click();
     } else {
-      await FileSaver.instance.saveFile(
-        'FlutterLetsDraw-${DateTime.now().toIso8601String()}.$extension',
-        bytes,
-        extension,
-        mimeType: extension == 'png' ? MimeType.PNG : MimeType.JPEG,
-      );
+      await _jSaverPlugin.saveFromData(
+          data: bytes,
+          name:
+              'FlutterLetsDraw-${DateTime.now().toIso8601String()}.$extension');
     }
   }
 
