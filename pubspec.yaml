@@ -35,12 +35,13 @@ dependencies:
   flutter_colorpicker: ^1.0.3
   flutter_hooks: ^0.18.5+1
   flutter_svg: ^1.1.1+1
-  file_saver: ^0.1.1
+#  file_saver: ^0.1.1
   font_awesome_flutter: ^10.2.1
   url_launcher: ^6.1.6
   universal_html: ^2.0.8
   image_picker: ^0.8.6
   file_picker: ^5.2.2
+  jsaver: ^1.2.0
 
 dev_dependencies:
   flutter_test:
