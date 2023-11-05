@@ -6,6 +6,7 @@ import 'package:flutter_drawing_board/view/drawing_canvas/drawing_canvas.dart';
 import 'package:flutter_drawing_board/view/drawing_canvas/models/drawing_mode.dart';
 import 'package:flutter_drawing_board/view/drawing_canvas/models/sketch.dart';
 import 'package:flutter_drawing_board/view/drawing_canvas/widgets/canvas_side_bar.dart';
+import 'package:flutter_drawing_board/view/drawing_canvas/widgets/prompt_box.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class DrawingPage extends HookWidget {
@@ -76,6 +77,12 @@ class DrawingPage extends HookWidget {
             ),
           ),
           _CustomAppBar(animationController: animationController),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: PromptBox(), // Replace with your PromptBox widget
+          ),
         ],
       ),
     );
