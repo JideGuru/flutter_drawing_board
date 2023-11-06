@@ -77,11 +77,16 @@ class DrawingPage extends HookWidget {
             ),
           ),
           _CustomAppBar(animationController: animationController),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: PromptBox(), // Replace with your PromptBox widget
+          const Column(
+            children: [
+              Spacer(),
+              Row(
+                children: [Spacer(), PromptBox(), Spacer()],
+              ),
+              SizedBox(
+                height: 20,
+              )
+            ],
           ),
         ],
       ),

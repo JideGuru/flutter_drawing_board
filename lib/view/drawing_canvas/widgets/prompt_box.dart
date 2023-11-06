@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class PromptBox extends StatefulWidget {
+  const PromptBox({super.key});
+
   @override
   _PromptBoxState createState() => _PromptBoxState();
 }
@@ -62,30 +65,57 @@ class _PromptBoxState extends State<PromptBox> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        TextField(
-          controller: textController,
-          onChanged: (value) {
-            setState(() {
-              text = value;
-            });
-          },
-          decoration: InputDecoration(labelText: 'Enter text'),
-        ),
-        SizedBox(height: 20),
-        Row(
-          children: <Widget>[
-            ElevatedButton(
+    return Container(
+      width: 600,
+      height: 200,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade200,
+            blurRadius: 3,
+            offset: const Offset(3, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+              child: Column(
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.all(16), // Add padding to the TextField
+                child: TextField(
+                  controller: textController,
+                  onChanged: (value) {
+                    setState(() {
+                      text = value;
+                    });
+                  },
+                  maxLines: null, // Allow multiple lines of text
+                  decoration: const InputDecoration(
+                    labelText: 'Enter text prompt',
+                    border: InputBorder.none, // Remove the underline
+                  ),
+                ),
+              ),
+              const Spacer()
+            ],
+          )),
+          Container(
+            width: 150, // Set the fixed width for the button
+            padding: const EdgeInsets.all(16),
+            child: ElevatedButton(
               onPressed: _sendText,
-              child: Text('Generate'),
+              child: isLoading
+                  ? const CircularProgressIndicator()
+                  : const Text('Generate'),
             ),
-            if (isLoading) CircularProgressIndicator(),
-          ],
-        ),
-        SizedBox(height: 20),
-        Text(responseText),
-      ],
+          ),
+        ],
+      ),
     );
   }
 }
