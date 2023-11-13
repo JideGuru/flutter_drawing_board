@@ -24,6 +24,8 @@ class DrawingPage extends HookWidget {
 
     final canvasGlobalKey = GlobalKey();
 
+    print("global: " + canvasGlobalKey.toString());
+
     ValueNotifier<Sketch?> currentSketch = useState(null);
     ValueNotifier<List<Sketch>> allSketches = useState([]);
 
@@ -77,13 +79,19 @@ class DrawingPage extends HookWidget {
             ),
           ),
           _CustomAppBar(animationController: animationController),
-          const Column(
+          Column(
             children: [
-              Spacer(),
+              const Spacer(),
               Row(
-                children: [Spacer(), PromptBox(), Spacer()],
+                children: [
+                  const Spacer(),
+                  PromptBox(
+                      canvasGlobalKey: canvasGlobalKey,
+                      backgroundImage: backgroundImage),
+                  const Spacer()
+                ],
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               )
             ],
@@ -134,3 +142,49 @@ class _CustomAppBar extends StatelessWidget {
     );
   }
 }
+
+/*
+class _CollapsiblePromptBox extends HookWidget {
+  @override
+  Widget build(BuildContext context) {
+    final animationController = useAnimationController(
+      duration: const Duration(milliseconds: 150),
+      initialValue: 1,
+    );
+
+    return Column(
+      children: [
+        Container(
+          height: 30,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.shade200,
+                blurRadius: 3,
+                offset: const Offset(3, 3),
+              ),
+            ],
+          ),
+          child: IconButton(
+            onPressed: () {
+              if (animationController.value == 0) {
+                animationController.forward();
+              } else {
+                animationController.reverse();
+              }
+            },
+            icon: const Icon(Icons.menu),
+          ),
+        ),
+        SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, -1),
+              end: Offset.zero,
+            ).animate(animationController),
+            child: const PromptBox()),
+      ],
+    );
+  }
+} */

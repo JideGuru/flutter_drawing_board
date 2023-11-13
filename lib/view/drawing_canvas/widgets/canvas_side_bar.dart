@@ -148,7 +148,6 @@ class CanvasSideBar extends HookWidget {
                 ),
               ],
             ),
-
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
               child: drawingMode.value == DrawingMode.polygon
@@ -261,10 +260,6 @@ class CanvasSideBar extends HookWidget {
                         : 'Remove Background',
                   ),
                 ),
-                TextButton(
-                  child: const Text('Fork on Github'),
-                  onPressed: () => _launchUrl(kGithubRepo),
-                ),
               ],
             ),
             const SizedBox(height: 20),
@@ -296,17 +291,6 @@ class CanvasSideBar extends HookWidget {
                   ),
                 ),
               ],
-            ),
-            // add about me button or follow buttons
-            const Divider(),
-            Center(
-              child: GestureDetector(
-                onTap: () => _launchUrl('https://github.com/JideGuru'),
-                child: const Text(
-                  'Made with 💙 by JideGuru',
-                  style: TextStyle(fontSize: 12),
-                ),
-              ),
             ),
           ],
         ),
@@ -379,6 +363,7 @@ class CanvasSideBar extends HookWidget {
   }
 
   Future<Uint8List?> getBytes() async {
+    print("side-bar-box: " + canvasGlobalKey.toString());
     RenderRepaintBoundary boundary = canvasGlobalKey.currentContext
         ?.findRenderObject() as RenderRepaintBoundary;
     ui.Image image = await boundary.toImage();
