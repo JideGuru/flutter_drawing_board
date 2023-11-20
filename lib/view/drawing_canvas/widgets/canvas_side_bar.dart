@@ -46,10 +46,12 @@ class CanvasSideBar extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final undoRedoStack = useState(_UndoRedoStack(
-      sketchesNotifier: allSketches,
-      currentSketchNotifier: currentSketch,
-    ));
+    final undoRedoStack = useState(
+      _UndoRedoStack(
+        sketchesNotifier: allSketches,
+        currentSketchNotifier: currentSketch,
+      ),
+    );
     final scrollController = useScrollController();
     return Container(
       width: 300,
@@ -324,10 +326,10 @@ class CanvasSideBar extends HookWidget {
         ..click();
     } else {
       await FileSaver.instance.saveFile(
-        'FlutterLetsDraw-${DateTime.now().toIso8601String()}.$extension',
-        bytes,
-        extension,
-        mimeType: extension == 'png' ? MimeType.PNG : MimeType.JPEG,
+        name: 'FlutterLetsDraw-${DateTime.now().toIso8601String()}.$extension',
+        bytes: bytes,
+        ext: extension,
+        mimeType: extension == 'png' ? MimeType.png : MimeType.jpeg,
       );
     }
   }

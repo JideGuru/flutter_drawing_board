@@ -39,10 +39,11 @@ class ColorPalette extends HookWidget {
                     decoration: BoxDecoration(
                       color: color,
                       border: Border.all(
-                          color: selectedColor.value == color
-                              ? Colors.blue
-                              : Colors.grey,
-                          width: 1.5),
+                        color: selectedColor.value == color
+                            ? Colors.blue
+                            : Colors.grey,
+                        width: 1.5,
+                      ),
                       borderRadius: const BorderRadius.all(Radius.circular(5)),
                     ),
                   ),
@@ -83,7 +84,7 @@ class ColorPalette extends HookWidget {
     );
   }
 
-  showColorWheel(BuildContext context, ValueNotifier<Color> color) {
+  void showColorWheel(BuildContext context, ValueNotifier<Color> color) {
     showDialog(
       context: context,
       builder: (BuildContext context) {

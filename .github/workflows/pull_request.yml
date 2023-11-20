@@ -1,0 +1,17 @@
+name: 🛠️ Pull Request CI
+on: [push, workflow_dispatch]
+jobs:
+  drive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+      - run: flutter --version
+      - name: Dart Apply Fixes (if this fails, run `dart fix --apply` locally)
+        run: dart fix --apply; git diff --exit-code
+      - name: Dart Formatter (if this fails, run `dart format .` locally)
+        run: dart format .; git diff --exit-code
+      - name: Restore packages
+        run: flutter pub get
+      - name: Analyze
+        run: flutter analyze

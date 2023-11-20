@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Let\'s Draw',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: false),
       debugShowCheckedModeBanner: false,
       home: const DrawingPage(),
     );

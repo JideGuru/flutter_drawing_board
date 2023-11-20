@@ -19,7 +19,10 @@ class Sketch {
   });
 
   factory Sketch.fromDrawingMode(
-      Sketch sketch, DrawingMode drawingMode, bool filled) {
+    Sketch sketch,
+    DrawingMode drawingMode,
+    bool filled,
+  ) {
     return Sketch(
       points: sketch.points,
       color: sketch.color,
@@ -79,12 +82,12 @@ class Sketch {
 enum SketchType { scribble, line, square, circle, polygon }
 
 extension SketchTypeX on SketchType {
-  toRegularString() => toString().split('.')[1];
+  String toRegularString() => toString().split('.')[1];
 }
 
 extension SketchTypeExtension on String {
-  toSketchTypeEnum() =>
-      SketchType.values.firstWhere((e) => e.toString() == 'SketchType.${this}');
+  SketchType toSketchTypeEnum() =>
+      SketchType.values.firstWhere((e) => e.toString() == 'SketchType.$this');
 }
 
 extension ColorExtension on String {

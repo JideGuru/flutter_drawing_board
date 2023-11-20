@@ -178,8 +178,12 @@ class SketchPainter extends CustomPainter {
     if (backgroundImage != null) {
       canvas.drawImageRect(
         backgroundImage!,
-        Rect.fromLTWH(0, 0, backgroundImage!.width.toDouble(),
-            backgroundImage!.height.toDouble()),
+        Rect.fromLTWH(
+          0,
+          0,
+          backgroundImage!.width.toDouble(),
+          backgroundImage!.height.toDouble(),
+        ),
         Rect.fromLTWH(0, 0, size.width, size.height),
         Paint(),
       );
@@ -258,7 +262,9 @@ class SketchPainter extends CustomPainter {
             Offset(radius * math.cos(radian), radius * math.sin(radian));
 
         polygonPath.moveTo(
-            startPoint.dx + centerPoint.dx, startPoint.dy + centerPoint.dy);
+          startPoint.dx + centerPoint.dx,
+          startPoint.dy + centerPoint.dy,
+        );
         for (int i = 1; i <= sides; i++) {
           double x = radius * math.cos(radian + angle * i) + centerPoint.dx;
           double y = radius * math.sin(radian + angle * i) + centerPoint.dy;
