@@ -38,13 +38,10 @@ class DrawingPage extends HookWidget {
             width: double.maxFinite,
             height: double.maxFinite,
             child: DrawingCanvas(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
               drawingMode: drawingMode,
               selectedColor: selectedColor,
               strokeSize: strokeSize,
               eraserSize: eraserSize,
-              sideBarController: animationController,
               currentSketch: currentSketch,
               allSketches: allSketches,
               canvasGlobalKey: canvasGlobalKey,

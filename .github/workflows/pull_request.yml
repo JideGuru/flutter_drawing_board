@@ -15,3 +15,5 @@ jobs:
         run: flutter pub get
       - name: Analyze
         run: flutter analyze
+      - name: Run Tests without coverage
+        run: flutter test

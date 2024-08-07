@@ -8,14 +8,11 @@ import 'package:flutter_drawing_board/view/drawing_canvas/models/sketch.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class DrawingCanvas extends HookWidget {
-  final double height;
-  final double width;
   final ValueNotifier<Color> selectedColor;
   final ValueNotifier<double> strokeSize;
   final ValueNotifier<Image?> backgroundImage;
   final ValueNotifier<double> eraserSize;
   final ValueNotifier<DrawingMode> drawingMode;
-  final AnimationController sideBarController;
   final ValueNotifier<Sketch?> currentSketch;
   final ValueNotifier<List<Sketch>> allSketches;
   final GlobalKey canvasGlobalKey;
@@ -24,13 +21,10 @@ class DrawingCanvas extends HookWidget {
 
   const DrawingCanvas({
     Key? key,
-    required this.height,
-    required this.width,
     required this.selectedColor,
     required this.strokeSize,
     required this.eraserSize,
     required this.drawingMode,
-    required this.sideBarController,
     required this.currentSketch,
     required this.allSketches,
     required this.canvasGlobalKey,
@@ -114,16 +108,16 @@ class DrawingCanvas extends HookWidget {
 
   Widget buildAllSketches(BuildContext context) {
     return SizedBox(
-      height: height,
-      width: width,
+      height: MediaQuery.of(context).size.height,
+      width: MediaQuery.of(context).size.width,
       child: ValueListenableBuilder<List<Sketch>>(
         valueListenable: allSketches,
         builder: (context, sketches, _) {
           return RepaintBoundary(
             key: canvasGlobalKey,
             child: Container(
-              height: height,
-              width: width,
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
               color: kCanvasColor,
               child: CustomPaint(
                 painter: SketchPainter(
@@ -148,8 +142,8 @@ class DrawingCanvas extends HookWidget {
         builder: (context, sketch, child) {
           return RepaintBoundary(
             child: SizedBox(
-              height: height,
-              width: width,
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
               child: CustomPaint(
                 painter: SketchPainter(
                   sketches: sketch == null ? [] : [sketch],

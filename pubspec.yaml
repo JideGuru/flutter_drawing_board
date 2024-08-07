@@ -32,8 +32,8 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  flutter_colorpicker: ^1.0.3
-  flutter_hooks: ^0.18.5+1
+  flutter_colorpicker: ^1.1.0
+  flutter_hooks: ^0.20.5
   flutter_svg: ^2.0.9
   file_saver: ^0.2.9
   font_awesome_flutter: ^10.6.0
