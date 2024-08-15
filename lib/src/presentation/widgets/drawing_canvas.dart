@@ -205,16 +205,6 @@ class _DrawingCanvasPainter extends CustomPainter {
         continue;
       }
 
-      // Marker stroke
-      if (stroke is MarkerStroke) {
-        final path = _getStrokePath(stroke, size);
-        canvas.drawPath(
-          path,
-          paint..color = stroke.color.withOpacity(stroke.opacity),
-        );
-        continue;
-      }
-
       // Eraser stroke. The eraser stroke is drawn with the background color.
       if (stroke is EraserStroke) {
         final path = _getStrokePath(stroke, size);

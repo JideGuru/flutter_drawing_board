@@ -59,13 +59,6 @@ abstract class Stroke {
           size: size,
           opacity: opacity,
         );
-      case StrokeType.marker:
-        return MarkerStroke(
-          points: points,
-          color: color,
-          size: size,
-          opacity: opacity,
-        );
       case StrokeType.polygon:
         return PolygonStroke(
           points: points,
@@ -147,41 +140,6 @@ class EraserStroke extends Stroke {
     double? opacity,
   }) {
     return EraserStroke(
-      points: points ?? this.points,
-      color: color ?? this.color,
-      size: size ?? this.size,
-      opacity: opacity ?? this.opacity,
-    );
-  }
-
-  @override
-  Map<String, dynamic> toJson() {
-    return {
-      'points': points.map((point) => [point.dx, point.dy]).toList(),
-      'color': color.value,
-      'size': size,
-      'opacity': opacity,
-      'strokeType': strokeType.toString(),
-    };
-  }
-}
-
-class MarkerStroke extends Stroke {
-  MarkerStroke({
-    required super.points,
-    super.color,
-    super.size,
-    super.opacity,
-  }) : super(strokeType: StrokeType.normal);
-
-  @override
-  MarkerStroke copyWith({
-    List<Offset>? points,
-    Color? color,
-    double? size,
-    double? opacity,
-  }) {
-    return MarkerStroke(
       points: points ?? this.points,
       color: color ?? this.color,
       size: size ?? this.size,
@@ -365,7 +323,6 @@ enum StrokeType {
   normal,
   eraser,
   line,
-  marker,
   polygon,
   square,
   circle;
@@ -378,8 +335,6 @@ enum StrokeType {
         return StrokeType.eraser;
       case 'line':
         return StrokeType.line;
-      case 'marker':
-        return StrokeType.marker;
       case 'polygon':
         return StrokeType.polygon;
       case 'square':
@@ -400,8 +355,6 @@ enum StrokeType {
         return 'eraser';
       case StrokeType.line:
         return 'line';
-      case StrokeType.marker:
-        return 'marker';
       case StrokeType.polygon:
         return 'polygon';
       case StrokeType.square:

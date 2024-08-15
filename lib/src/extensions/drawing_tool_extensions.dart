@@ -6,8 +6,6 @@ extension DrawingToolExtensions on DrawingTool {
     switch (this) {
       case DrawingTool.pencil:
         return StrokeType.normal;
-      case DrawingTool.marker:
-        return StrokeType.marker;
       case DrawingTool.fill:
         return StrokeType.normal;
       case DrawingTool.eraser:
@@ -27,7 +25,6 @@ extension DrawingToolExtensions on DrawingTool {
     switch (this) {
       case DrawingTool.pencil:
       case DrawingTool.line:
-      case DrawingTool.marker:
       case DrawingTool.polygon:
       case DrawingTool.square:
       case DrawingTool.circle:

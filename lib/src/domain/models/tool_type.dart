@@ -1,6 +1,5 @@
 enum ToolType {
   pencil,
-  marker,
   stamp,
   spray,
   fill,

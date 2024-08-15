@@ -1,4 +1,3 @@
-export 'constants/constants.dart';
 export 'domain/domain.dart';
 export 'extensions/extensions.dart';
 export 'lets_draw_app.dart';

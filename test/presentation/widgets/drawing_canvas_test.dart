@@ -94,31 +94,6 @@ void main() {
     });
   });
 
-  group('marker tool', () {
-    testWidgets('draw a stroke with marker tool', (tester) async {
-      await tester.pumpWidget(
-        const _Seed(
-          drawingCanvasOptions: DrawingCanvasOptions(
-            strokeColor: redAccent,
-            currentTool: DrawingTool.marker,
-          ),
-        ),
-      );
-
-      // Simulate drawing
-      const Offset startPoint = Offset(100, 100);
-      const Offset endPoint = Offset(200, 200);
-
-      await tester.dragFrom(startPoint, endPoint);
-      await tester.pumpAndSettle();
-
-      await expectLater(
-        find.byType(DrawingCanvas),
-        matchesGoldenFile('goldens/single_stroke_canvas_with_marker_tool.png'),
-      );
-    });
-  });
-
   group('Ruler tool', () {
     testWidgets('Ruler is active', (tester) async {
       await tester.pumpWidget(

@@ -16,16 +16,6 @@ class CurrentStrokeValueNotifier extends ValueNotifier<Stroke?> {
     bool? filled,
   }) {
     value = () {
-      if (type == StrokeType.marker) {
-        return MarkerStroke(
-          points: [point],
-          color: color,
-          size: size < markerDefaultSize ? markerDefaultSize : size,
-          opacity:
-              opacity > markerDefaultOpacity ? markerDefaultOpacity : opacity,
-        );
-      }
-
       if (type == StrokeType.eraser) {
         return EraserStroke(
           points: [point],

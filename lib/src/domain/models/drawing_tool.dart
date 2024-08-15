@@ -1,6 +1,5 @@
 enum DrawingTool {
   pencil,
-  marker,
   fill,
   line,
   eraser,
@@ -11,7 +10,6 @@ enum DrawingTool {
   bool get isEraser => this == DrawingTool.eraser;
   bool get isLine => this == DrawingTool.line;
   bool get isFill => this == DrawingTool.fill;
-  bool get isMarker => this == DrawingTool.marker;
   bool get isPencil => this == DrawingTool.pencil;
   bool get isPolygon => this == DrawingTool.polygon;
   bool get isSquare => this == DrawingTool.square;
