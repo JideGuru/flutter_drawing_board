@@ -46,64 +46,68 @@ class _DrawingPageState extends State<DrawingPage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kCanvasColor,
-      body: Stack(
-        children: [
-          AnimatedBuilder(
-            animation: Listenable.merge([
-              currentStroke,
-              allStrokes,
-              selectedColor,
-              strokeSize,
-              eraserSize,
-              drawingTool,
-              filled,
-              polygonSides,
-              backgroundImage,
-              showGrid,
-            ]),
-            builder: (context, _) {
-              return DrawingCanvas(
-                options: DrawingCanvasOptions(
-                  currentTool: drawingTool.value,
-                  size: strokeSize.value,
-                  strokeColor: selectedColor.value,
-                  backgroundColor: kCanvasColor,
-                  polygonSides: polygonSides.value,
-                  showGrid: showGrid.value,
-                  fillShape: filled.value,
+      body: HotkeyListener(
+        onRedo: undoRedoStack.redo,
+        onUndo: undoRedoStack.undo,
+        child: Stack(
+          children: [
+            AnimatedBuilder(
+              animation: Listenable.merge([
+                currentStroke,
+                allStrokes,
+                selectedColor,
+                strokeSize,
+                eraserSize,
+                drawingTool,
+                filled,
+                polygonSides,
+                backgroundImage,
+                showGrid,
+              ]),
+              builder: (context, _) {
+                return DrawingCanvas(
+                  options: DrawingCanvasOptions(
+                    currentTool: drawingTool.value,
+                    size: strokeSize.value,
+                    strokeColor: selectedColor.value,
+                    backgroundColor: kCanvasColor,
+                    polygonSides: polygonSides.value,
+                    showGrid: showGrid.value,
+                    fillShape: filled.value,
+                  ),
+                  canvasKey: canvasGlobalKey,
+                  currentStrokeListenable: currentStroke,
+                  strokesListenable: allStrokes,
+                  backgroundImageListenable: backgroundImage,
+                );
+              },
+            ),
+            Positioned(
+              top: kToolbarHeight + 10,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(-1, 0),
+                  end: Offset.zero,
+                ).animate(animationController),
+                child: CanvasSideBar(
+                  drawingTool: drawingTool,
+                  selectedColor: selectedColor,
+                  strokeSize: strokeSize,
+                  eraserSize: eraserSize,
+                  currentSketch: currentStroke,
+                  allSketches: allStrokes,
+                  canvasGlobalKey: canvasGlobalKey,
+                  filled: filled,
+                  polygonSides: polygonSides,
+                  backgroundImage: backgroundImage,
+                  undoRedoStack: undoRedoStack,
+                  showGrid: showGrid,
                 ),
-                canvasKey: canvasGlobalKey,
-                currentStrokeListenable: currentStroke,
-                strokesListenable: allStrokes,
-                backgroundImageListenable: backgroundImage,
-              );
-            },
-          ),
-          Positioned(
-            top: kToolbarHeight + 10,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(-1, 0),
-                end: Offset.zero,
-              ).animate(animationController),
-              child: CanvasSideBar(
-                drawingTool: drawingTool,
-                selectedColor: selectedColor,
-                strokeSize: strokeSize,
-                eraserSize: eraserSize,
-                currentSketch: currentStroke,
-                allSketches: allStrokes,
-                canvasGlobalKey: canvasGlobalKey,
-                filled: filled,
-                polygonSides: polygonSides,
-                backgroundImage: backgroundImage,
-                undoRedoStack: undoRedoStack,
-                showGrid: showGrid,
               ),
             ),
-          ),
-          _CustomAppBar(animationController: animationController),
-        ],
+            _CustomAppBar(animationController: animationController),
+          ],
+        ),
       ),
     );
   }
