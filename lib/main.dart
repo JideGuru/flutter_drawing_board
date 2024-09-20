@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_drawing_board/src/src.dart';
 
 void main() {
-  runApp(const LetsDrawApp());
+  runApp(const SafeArea(child: DrawingPage()),);
 }
 
 const Color kCanvasColor = Color(0xfff2f3f7);
