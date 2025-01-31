@@ -89,36 +89,41 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
         onPointerUp: _onPointerUp,
         onPointerMove: _onPointerMove,
         onPointerDown: _onPointerDown,
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: RepaintBoundary(
-                key: widget.canvasKey,
-                child: CustomPaint(
-                  isComplex: true,
-                  painter: _DrawingCanvasPainter(
-                    strokesListenable: _strokes,
-                    backgroundColor: widget.options.backgroundColor,
+        child: InteractiveViewer(
+          minScale: 0.1,
+          maxScale: 5.0,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: RepaintBoundary(
+                  key: widget.canvasKey,
+                  child: CustomPaint(
+                    isComplex: true,
+                    painter: _DrawingCanvasPainter(
+                      strokesListenable: _strokes,
+                      backgroundColor: widget.options.backgroundColor,
+                    ),
                   ),
                 ),
               ),
-            ),
 
-            // Draw the current stroke on top of the rest of the strokes.
-            Positioned.fill(
-              child: RepaintBoundary(
-                child: CustomPaint(
-                  isComplex: true,
-                  painter: _DrawingCanvasPainter(
-                    strokeListenable: _currentStroke,
-                    backgroundColor: widget.options.backgroundColor,
-                    showGridListenable: _showGrid,
-                    backgroundImageListenable: widget.backgroundImageListenable,
+              // Draw the current stroke on top of the rest of the strokes.
+              Positioned.fill(
+                child: RepaintBoundary(
+                  child: CustomPaint(
+                    isComplex: true,
+                    painter: _DrawingCanvasPainter(
+                      strokeListenable: _currentStroke,
+                      backgroundColor: widget.options.backgroundColor,
+                      showGridListenable: _showGrid,
+                      backgroundImageListenable:
+                          widget.backgroundImageListenable,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
