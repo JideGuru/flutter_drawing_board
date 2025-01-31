@@ -140,6 +140,12 @@ class _CanvasSideBarState extends State<CanvasSideBar> {
                       tooltip: 'Eraser',
                     ),
                     _IconBox(
+                      iconData: Icons.pan_tool,
+                      selected: widget.drawingTool.value == DrawingTool.pan,
+                      onTap: () => widget.drawingTool.value = DrawingTool.pan,
+                      tooltip: 'Pan',
+                    ),
+                    _IconBox(
                       iconData: FontAwesomeIcons.square,
                       selected: widget.drawingTool.value == DrawingTool.square,
                       onTap: () =>

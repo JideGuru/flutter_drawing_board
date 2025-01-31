@@ -145,8 +145,8 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
         onPointerMove: _onPointerMove,
         onPointerDown: _onPointerDown,
         child: InteractiveViewer(
-          panEnabled: true,
           transformationController: _transformationController,
+          panEnabled: currentTool.isPan ? true : false,
           minScale: 0.1,
           maxScale: 5.0,
           child: SizedBox(
