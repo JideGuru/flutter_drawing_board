@@ -18,6 +18,8 @@ extension DrawingToolExtensions on DrawingTool {
         return StrokeType.square;
       case DrawingTool.circle:
         return StrokeType.circle;
+      default:
+        return StrokeType.normal;
     }
   }
 
@@ -32,6 +34,8 @@ extension DrawingToolExtensions on DrawingTool {
         return SystemMouseCursors.precise;
       case DrawingTool.fill:
         return SystemMouseCursors.click;
+      case DrawingTool.pan:
+        return SystemMouseCursors.grab;
     }
   }
 }

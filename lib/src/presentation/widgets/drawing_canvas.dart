@@ -39,6 +39,10 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
 
   ValueNotifier<List<Stroke>> get _strokes => widget.strokesListenable;
 
+  final TransformationController _transformationController =
+      TransformationController();
+  double _minX = 0, _maxX = 0, _minY = 0, _maxY = 0;
+
   CurrentStrokeValueNotifier get _currentStroke =>
       widget.currentStrokeListenable;
 
@@ -46,6 +50,8 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
     final box = context.findRenderObject() as RenderBox?;
     if (box == null) return;
     final offset = box.globalToLocal(event.position);
+    final localPosition =
+        _transformationController.toScene(event.localPosition);
     // convert the offset to standard size so that it
     // can be scaled back to the device size
     final standardOffset = offset.scaleToStandard(box.size);
@@ -59,17 +65,66 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
       filled: widget.options.fillShape,
     );
     widget.onDrawingStrokeChanged?.call(_currentStroke.value);
+    _minX = _strokes.value.isEmpty
+        ? localPosition.dx
+        : _minX < localPosition.dx
+            ? _minX
+            : localPosition.dx;
+
+    _maxX = _strokes.value.isEmpty
+        ? localPosition.dx
+        : _maxX > localPosition.dx
+            ? _maxX
+            : localPosition.dx;
+
+    _minY = _strokes.value.isEmpty
+        ? localPosition.dy
+        : _minY < localPosition.dy
+            ? _minY
+            : localPosition.dy;
+
+    _maxY = _strokes.value.isEmpty
+        ? localPosition.dy
+        : _minY > localPosition.dy
+            ? _minY
+            : localPosition.dy;
   }
 
   void _onPointerMove(PointerMoveEvent event) {
     final box = context.findRenderObject() as RenderBox?;
     if (box == null) return;
     final offset = box.globalToLocal(event.position);
+    final localPosition =
+        _transformationController.toScene(event.localPosition);
     // convert the offset to standard size so that it
     // can be scaled back to the device size
     final standardOffset = offset.scaleToStandard(box.size);
     _currentStroke.addPoint(standardOffset);
     widget.onDrawingStrokeChanged?.call(_currentStroke.value);
+
+    _minX = _strokes.value.isEmpty
+        ? localPosition.dx
+        : _minX < localPosition.dx
+            ? _minX
+            : localPosition.dx;
+
+    _maxX = _strokes.value.isEmpty
+        ? localPosition.dx
+        : _maxX > localPosition.dx
+            ? _maxX
+            : localPosition.dx;
+
+    _minY = _strokes.value.isEmpty
+        ? localPosition.dy
+        : _minY < localPosition.dy
+            ? _minY
+            : localPosition.dy;
+
+    _maxY = _strokes.value.isEmpty
+        ? localPosition.dy
+        : _minY > localPosition.dy
+            ? _minY
+            : localPosition.dy;
   }
 
   void _onPointerUp(PointerUpEvent event) {
@@ -89,36 +144,46 @@ class _DrawingCanvasState extends State<DrawingCanvas> {
         onPointerUp: _onPointerUp,
         onPointerMove: _onPointerMove,
         onPointerDown: _onPointerDown,
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: RepaintBoundary(
-                key: widget.canvasKey,
-                child: CustomPaint(
-                  isComplex: true,
-                  painter: _DrawingCanvasPainter(
-                    strokesListenable: _strokes,
-                    backgroundColor: widget.options.backgroundColor,
+        child: InteractiveViewer(
+          transformationController: _transformationController,
+          panEnabled: currentTool.isPan ? true : false,
+          minScale: 0.1,
+          maxScale: 5.0,
+          child: SizedBox(
+              width: (_maxX - _minX).abs() + 2000,
+              height: (_maxY - _minY).abs() + 2000,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: RepaintBoundary(
+                      key: widget.canvasKey,
+                      child: CustomPaint(
+                        isComplex: true,
+                        painter: _DrawingCanvasPainter(
+                          strokesListenable: _strokes,
+                          backgroundColor: widget.options.backgroundColor,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ),
 
-            // Draw the current stroke on top of the rest of the strokes.
-            Positioned.fill(
-              child: RepaintBoundary(
-                child: CustomPaint(
-                  isComplex: true,
-                  painter: _DrawingCanvasPainter(
-                    strokeListenable: _currentStroke,
-                    backgroundColor: widget.options.backgroundColor,
-                    showGridListenable: _showGrid,
-                    backgroundImageListenable: widget.backgroundImageListenable,
+                  // Draw the current stroke on top of the rest of the strokes.
+                  Positioned.fill(
+                    child: RepaintBoundary(
+                      child: CustomPaint(
+                        isComplex: true,
+                        painter: _DrawingCanvasPainter(
+                          strokeListenable: _currentStroke,
+                          backgroundColor: widget.options.backgroundColor,
+                          showGridListenable: _showGrid,
+                          backgroundImageListenable:
+                              widget.backgroundImageListenable,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ),
-          ],
+                ],
+              )),
         ),
       ),
     );
